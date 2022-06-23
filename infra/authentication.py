@@ -15,8 +15,8 @@ from ninja.errors import HttpError
 from ninja.security import HttpBearer
 from ninja.security.http import HttpAuthBase
 
-from app.models import Toilet
-from app.models.openapi import Agent
+from recycle.models import Toilet
+from recycle.models.openapi import Agent
 
 User = get_user_model()
 logger = logging.getLogger("django")

@@ -39,11 +39,10 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "corsheaders",
     "django_extensions",
-    "django_apscheduler",
 ]
 
 LOCAL_APPS = [
-    "app",
+    "recycle",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -63,7 +62,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "sy_low_value.urls"
 
-AUTH_USER_MODEL = "app.User"
+AUTH_USER_MODEL = "recycle.User"
 
 TEMPLATES = [
     {
@@ -92,11 +91,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-INFLUXDB_URL = "http://localhost:8086"
-INFLUXDB_BUCKET = "cube"
-INFLUXDB_ORG = "backend"
-INFLUXDB_TOKEN = "GDd2-WGghz9WlCvPht7AOzqwiwBdWjtanJzFsL7fm_rpq86Ciap_0dFURqU1gnAuaQLEaQfgqIvxZAZPOANR1g=="
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -165,14 +159,7 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
-        "influxdb.query": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
     },
 }
 
 JWT_EXPIRE = 60 * 60 * 24 * 7
-
-READONLY_USERS = ["hwc"]
