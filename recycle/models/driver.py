@@ -5,6 +5,7 @@ from infra.db.models import BaseModel
 
 class Driver(BaseModel):
     """清运公司司机"""
+
     company = models.ForeignKey("Company", on_delete=models.CASCADE)
     name = models.CharField("姓名", max_length=32)
     id_card = models.CharField("身份证", max_length=32)

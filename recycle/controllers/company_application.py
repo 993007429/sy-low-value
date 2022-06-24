@@ -4,13 +4,17 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import transaction
-from ninja import Router, Query
+from ninja import Query, Router
 from ninja.errors import HttpError
 
 from infra.schemas import Page, Pagination
-from recycle.models.company_application import CompanyApplication, ApprovalState
-from recycle.schemas.company_application import CompanyApplicationIn, CompanyApplicationOut, \
-    CompanyApplicationOperationIn
+from recycle.models import Company, CompanyManager, User
+from recycle.models.company_application import ApprovalState, CompanyApplication
+from recycle.schemas.company_application import (
+    CompanyApplicationIn,
+    CompanyApplicationOperationIn,
+    CompanyApplicationOut,
+)
 
 router = Router(tags=["收运公司"])
 
@@ -23,11 +27,13 @@ def submit_company_application(request, data: CompanyApplicationIn):
 
 
 @router.get("", response=Pagination[CompanyApplicationOut])
-def list_company_applications(request,
-                              state: ApprovalState = Query(None, title="审核状态"),
-                              name: str = Query(None, title="公司名称"),
-                              uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
-                              page: Page = Query(...)):
+def list_company_applications(
+        request,
+        state: ApprovalState = Query(None, title="审核状态"),
+        name: str = Query(None, title="公司名称"),
+        uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
+        page: Page = Query(...),
+):
     """查看清运公司审核列表"""
 
     queryset = CompanyApplication.objects.all().order_by("-id")
@@ -48,7 +54,9 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
 
     with transaction.atomic():
         try:
-            obj = CompanyApplication.objects.select_for_update().get(pk=id_, state=ApprovalState.APPROVING)
+            obj: CompanyApplication = CompanyApplication.objects.select_for_update().get(
+                pk=id_, state=ApprovalState.APPROVING
+            )
         except CompanyApplication.DoesNotExist:
             raise HttpError(404, "审批不存在或已审批完成")
         obj.state = data.state
@@ -56,8 +64,38 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
             obj.reason = data.reason
         obj.save()
 
-    # TODO: 生成随机密码
-    password = "123456"
+        password = User.objects.make_random_password()
+        if obj.state == ApprovalState.APPROVED:
+            # 创建公司管理员帐号
+            user = User.objects.create_user(
+                username=obj.uniform_social_credit_code,
+                email=obj.manager_email,
+                password=password,
+            )
+            manager = CompanyManager.objects.create(
+                user=user,
+                name=obj.manager_name,
+                id_card=obj.manager_id_card,
+                phone=obj.manager_phone,
+                email=obj.manager_email,
+                address=obj.manager_address,
+                id_card_front=obj.manager_id_card_front,
+                id_card_back=obj.manager_id_card_back,
+            )
+            # 创建公司, TODO: 验证各种字段唯一性
+            Company.objects.create(
+                name=obj.name,
+                uniform_social_credit_code=obj.uniform_social_credit_code,
+                address=obj.address,
+                area_code=obj.area_code,
+                area_name=obj.area_name,
+                form=obj.form,
+                legal_person=obj.legal_person,
+                legal_person_id_card=obj.legal_person_id_card,
+                business_license=obj.business_license,
+                qualification=obj.qualification,
+                manager=manager,
+            )
     # 发送邮件通知审核结果
     subject = "清运公司注册审核通知"
     if obj.state == ApprovalState.APPROVED:

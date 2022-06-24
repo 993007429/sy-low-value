@@ -7,12 +7,12 @@ class Vehicle(BaseModel):
     """清运公司车辆"""
 
     class VehicleType(models.TextChoices):
-        RECYCLE = 'RECYCLE', '可回收物运输车'
-        LARGE_RUBBISH = 'LARGE_RUBBISH', '大件垃圾运输车'
+        RECYCLE = "RECYCLE", "可回收物运输车"
+        LARGE_RUBBISH = "LARGE_RUBBISH", "大件垃圾运输车"
 
     class EnergyType(models.TextChoices):
-        OIL = 'OIL', '燃油'
-        NEW_ENERGY = 'NEW_ENERGY', '新能源'
+        OIL = "OIL", "燃油"
+        NEW_ENERGY = "NEW_ENERGY", "新能源"
 
     company = models.ForeignKey("Company", on_delete=models.CASCADE)
     plate_number = models.CharField("车牌号", max_length=32)
