@@ -7,10 +7,6 @@ For more information on this file, see
 https://docs.djangoproject.com/en/4.0/howto/deployment/wsgi/
 """
 
-import gevent.monkey
-
-gevent.monkey.patch_all()
-
 import os  # noqa
 
 from django.core.wsgi import get_wsgi_application  # noqa
