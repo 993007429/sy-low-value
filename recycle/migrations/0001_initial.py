@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='CompanyAdmin',
+            name='CompanyManager',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='创建时间')),
@@ -123,6 +123,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='company',
             name='admin',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='recycle.companyadmin'),
+            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='recycle.CompanyManager'),
         ),
     ]

@@ -16,7 +16,7 @@ class WeChatGenderEnum(IntEnum):
     FEMALE = 2
 
 
-class CompanyAdmin(BaseModel):
+class CompanyManager(BaseModel):
     """清运公司管理员、负责人"""
     user = models.OneToOneField("User", on_delete=models.CASCADE, db_constraint=False)
     name = models.CharField("姓名", max_length=32)
