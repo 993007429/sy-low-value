@@ -3,7 +3,7 @@ from email.utils import formataddr
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
-from django.db import transaction, IntegrityError
+from django.db import IntegrityError, transaction
 from ninja import Query, Router
 from ninja.errors import HttpError
 
@@ -28,11 +28,11 @@ def submit_company_application(request, data: CompanyApplicationIn):
 
 @router.get("", response=Pagination[CompanyApplicationOut])
 def list_company_applications(
-        request,
-        state: ApprovalState = Query(None, title="审核状态"),
-        name: str = Query(None, title="公司名称"),
-        uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
-        page: Page = Query(...),
+    request,
+    state: ApprovalState = Query(None, title="审核状态"),
+    name: str = Query(None, title="公司名称"),
+    uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
+    page: Page = Query(...),
 ):
     """查看清运公司审核列表"""
 
