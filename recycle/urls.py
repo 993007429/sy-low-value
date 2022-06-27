@@ -18,7 +18,8 @@ from .controllers.vehicle import router as vehicle_router
 
 logger = logging.getLogger(__name__)
 
-api = NinjaAPI(auth=AuthToken(), renderer=JSONRenderer())
+# api = NinjaAPI(auth=AuthToken(), renderer=JSONRenderer())
+api = NinjaAPI(renderer=JSONRenderer())
 
 if not settings.DEBUG:
     api.docs_url = None

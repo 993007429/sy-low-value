@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
+from django.db.models import Count
 from ninja import Query, Router
 from ninja.errors import HttpError
 
@@ -41,7 +42,7 @@ def list_company_applications(
 ):
     """查看清运公司审核列表"""
 
-    queryset = CompanyApplication.objects.all().order_by("-id")
+    queryset = CompanyApplication.objects.order_by("-id")
     if state:
         queryset = queryset.filter(state=state)
     if name:
@@ -53,7 +54,7 @@ def list_company_applications(
     return {"count": paginator.count, "results": list(p.object_list)}
 
 
-@router.patch("/{id_}", response=CompanyApplicationOut)
+@router.patch("/{id_}", response=CompanyApplicationOut, auth=None)
 def update_company_application(request, id_: int, data: CompanyApplicationOperationIn):
     """清运公司审批"""
 
