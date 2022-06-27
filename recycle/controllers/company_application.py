@@ -69,6 +69,7 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
                 # 创建公司管理员帐号
                 user = User.objects.create_user(
                     username=application.uniform_social_credit_code,
+                    first_name=application.name,
                     email=application.manager_email,
                     password=password,
                 )

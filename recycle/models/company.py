@@ -1,6 +1,8 @@
 from enum import Enum
 
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 from infra.db.models import BaseModel
 
@@ -32,3 +34,8 @@ class Company(BaseModel):
     business_license = models.CharField("营业执照", max_length=512)
     qualification = models.CharField("资质", max_length=512)
     manager = models.OneToOneField("CompanyManager", on_delete=models.CASCADE)
+
+
+@receiver(post_delete, sender=Company)
+def post_delete_user(sender, instance: Company, *args, **kwargs):
+    instance.manager.delete()

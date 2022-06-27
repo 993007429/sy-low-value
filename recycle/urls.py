@@ -8,9 +8,9 @@ from ninja.errors import ValidationError
 
 # from infra.authentication import AuthToken
 from infra.renderers import JSONRenderer
-
 from .controllers.company import router as company_router
 from .controllers.company_application import router as company_application_router
+from .controllers.token import router as token_router
 from .controllers.transfer_station import router as transfer_station_router
 
 logger = logging.getLogger(__name__)
@@ -29,6 +29,7 @@ def validation_errors(request: HttpRequest, exc: ValidationError):
     return api.create_response(request, {"detail": exc.errors}, status=422)
 
 
+api.add_router("/login", token_router)
 api.add_router("/company", company_router)
 api.add_router("/company-application", company_application_router)
 api.add_router("/transfer-station", transfer_station_router)

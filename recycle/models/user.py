@@ -10,12 +10,6 @@ class User(AbstractUser):
     pass
 
 
-class WeChatGenderEnum(IntEnum):
-    UNKNOWN = 0
-    MALE = 1
-    FEMALE = 2
-
-
 class CompanyManager(BaseModel):
     """清运公司管理员、负责人"""
 
