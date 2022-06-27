@@ -3,7 +3,7 @@ from email.utils import formataddr
 from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from ninja import Query, Router
 from ninja.errors import HttpError
 
@@ -54,55 +54,58 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
 
     with transaction.atomic():
         try:
-            obj: CompanyApplication = CompanyApplication.objects.select_for_update().get(
+            application: CompanyApplication = CompanyApplication.objects.select_for_update().get(
                 pk=id_, state=ApprovalState.APPROVING
             )
         except CompanyApplication.DoesNotExist:
             raise HttpError(404, "审批不存在或已审批完成")
-        obj.state = data.state
+        application.state = data.state
         if data.state == ApprovalState.REJECTED:
-            obj.reason = data.reason
-        obj.save()
+            application.reason = data.reason
 
         password = User.objects.make_random_password()
-        if obj.state == ApprovalState.APPROVED:
-            # 创建公司管理员帐号
-            user = User.objects.create_user(
-                username=obj.uniform_social_credit_code,
-                email=obj.manager_email,
-                password=password,
-            )
-            manager = CompanyManager.objects.create(
-                user=user,
-                name=obj.manager_name,
-                id_card=obj.manager_id_card,
-                phone=obj.manager_phone,
-                email=obj.manager_email,
-                address=obj.manager_address,
-                id_card_front=obj.manager_id_card_front,
-                id_card_back=obj.manager_id_card_back,
-            )
-            # 创建公司, TODO: 验证各种字段唯一性
-            Company.objects.create(
-                name=obj.name,
-                uniform_social_credit_code=obj.uniform_social_credit_code,
-                address=obj.address,
-                area_code=obj.area_code,
-                area_name=obj.area_name,
-                form=obj.form,
-                legal_person=obj.legal_person,
-                legal_person_id_card=obj.legal_person_id_card,
-                business_license=obj.business_license,
-                qualification=obj.qualification,
-                manager=manager,
-            )
+        if application.state == ApprovalState.APPROVED:
+            try:
+                # 创建公司管理员帐号
+                user = User.objects.create_user(
+                    username=application.uniform_social_credit_code,
+                    email=application.manager_email,
+                    password=password,
+                )
+                manager = CompanyManager.objects.create(
+                    user=user,
+                    name=application.manager_name,
+                    id_card=application.manager_id_card,
+                    phone=application.manager_phone,
+                    email=application.manager_email,
+                    address=application.manager_address,
+                    id_card_front=application.manager_id_card_front,
+                    id_card_back=application.manager_id_card_back,
+                )
+                # 创建公司
+                Company.objects.create(
+                    name=application.name,
+                    uniform_social_credit_code=application.uniform_social_credit_code,
+                    address=application.address,
+                    area_code=application.area_code,
+                    area_name=application.area_name,
+                    form=application.form,
+                    legal_person=application.legal_person,
+                    legal_person_id_card=application.legal_person_id_card,
+                    business_license=application.business_license,
+                    qualification=application.qualification,
+                    manager=manager,
+                )
+            except IntegrityError:
+                raise HttpError(409, "公司已存在")
+    application.save()
     # 发送邮件通知审核结果
     subject = "清运公司注册审核通知"
-    if obj.state == ApprovalState.APPROVED:
-        message = f"{obj.name} 审核通过。\n帐号：{obj.uniform_social_credit_code}\n密码：{password}"
+    if application.state == ApprovalState.APPROVED:
+        message = f"{application.name} 审核通过。\n帐号：{application.uniform_social_credit_code}\n密码：{password}"
     else:
-        message = f"{obj.name} 审核未通过，原因：{obj.reason}"
+        message = f"{application.name} 审核未通过，原因：{application.reason}"
     email_from = formataddr((settings.EMAIL_SENDER_NAME, settings.EMAIL_HOST_USER))
-    recipient_list = [obj.manager_email]
+    recipient_list = [application.manager_email]
     send_mail(subject, message, email_from, recipient_list, fail_silently=False)
-    return obj
+    return application
