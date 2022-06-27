@@ -8,6 +8,7 @@ from ninja.errors import ValidationError
 
 from infra.authentication import AuthToken
 from infra.renderers import JSONRenderer
+
 from .controllers.company import router as company_router
 from .controllers.company_application import router as company_application_router
 from .controllers.region import router as region_router

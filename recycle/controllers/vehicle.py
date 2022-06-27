@@ -1,9 +1,9 @@
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from ninja import Router, Query
+from ninja import Query, Router
 from ninja.errors import HttpError
 
-from infra.schemas import Pagination, Page
+from infra.schemas import Page, Pagination
 from recycle.models import Company, Region, RegionGrade, User, Vehicle
 from recycle.schemas.vehicle import VehicleIn, VehicleOut
 
@@ -36,12 +36,15 @@ def create_vehicle(request, data: VehicleIn):
 
 
 @router.get("", response=Pagination[VehicleOut])
-def list_vehicle(request, service_street_code: str = Query(None, title="服务街道编码"),
-                 plate_number: str = Query(None, title="车牌号"),
-                 page: Page = Query(...)):
+def list_vehicle(
+    request,
+    service_street_code: str = Query(None, title="服务街道编码"),
+    plate_number: str = Query(None, title="车牌号"),
+    page: Page = Query(...),
+):
     """车辆列表"""
 
-    queryset = Vehicle.objects.all().select_related("service_street").order_by('id')
+    queryset = Vehicle.objects.all().select_related("service_street").order_by("id")
     if service_street_code:
         queryset = queryset.filter(service_street__code=service_street_code)
     if plate_number:
