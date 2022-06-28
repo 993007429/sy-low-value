@@ -19,3 +19,9 @@ class CompanyManager(BaseModel):
     address = models.CharField("居住地址", max_length=255)
     id_card_front = models.CharField("身份证正面", max_length=255)
     id_card_back = models.CharField("身份证背面", max_length=255)
+
+
+class PlatformManager(BaseModel):
+    """再生资源平台管理员"""
+
+    user = models.OneToOneField("User", on_delete=models.CASCADE)

@@ -1,4 +1,4 @@
-from ninja import ModelSchema
+from ninja import ModelSchema, Schema
 from pydantic import Field
 
 from recycle.models import Company, CompanyManager
@@ -17,3 +17,8 @@ class CompanyOut(ModelSchema):
     class Config:
         model = Company
         model_fields = "__all__"
+
+
+class CompanyDropdownOut(Schema):
+    id: int
+    name: str

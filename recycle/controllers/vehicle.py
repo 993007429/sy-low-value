@@ -37,18 +37,25 @@ def create_vehicle(request, data: VehicleIn):
 
 @router.get("", response=Pagination[VehicleOut])
 def list_vehicle(
-    request,
-    service_street_code: str = Query(None, title="服务街道编码"),
-    plate_number: str = Query(None, title="车牌号"),
-    page: Page = Query(...),
+        request,
+        service_street_code: str = Query(None, title="服务街道编码"),
+        plate_number: str = Query(None, title="车牌号"),
+        company_id: str = Query(None, title="所属公司"),
+        page: Page = Query(...),
 ):
     """车辆列表"""
-
+    # TODO: 权限限制。
+    user: User = request.auth
+    company = Company.objects.filter(manager__user=user).first()
+    if company:  # 如果是公司用户则只能查看自己公司名下的车
+        company_id = company.id
     queryset = Vehicle.objects.all().select_related("service_street").order_by("id")
     if service_street_code:
         queryset = queryset.filter(service_street__code=service_street_code)
     if plate_number:
         queryset = queryset.filter(plate_number=plate_number)
+    if company_id:
+        queryset = queryset.filter(company_id=company_id)
     paginator = Paginator(queryset, page.page_size)
     p = paginator.page(page.page)
     return {"count": paginator.count, "results": list(p.object_list)}

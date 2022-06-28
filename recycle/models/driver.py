@@ -13,3 +13,9 @@ class Driver(BaseModel):
     working_years = models.PositiveSmallIntegerField("从业年限")
     joined_at = models.DateField("入职日期")
     license_photo = models.CharField("驾驶证照片", max_length=255)
+
+    class Meta:
+        unique_together = (
+            ("company", "id_card"),
+            ("company", "phone"),
+        )
