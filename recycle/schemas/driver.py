@@ -1,7 +1,7 @@
 from datetime import date
 
-from ninja import Schema, ModelSchema
-from pydantic import Field, AnyHttpUrl
+from ninja import ModelSchema, Schema
+from pydantic import AnyHttpUrl, Field
 
 from recycle.models import Driver
 

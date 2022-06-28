@@ -37,11 +37,11 @@ def create_vehicle(request, data: VehicleIn):
 
 @router.get("", response=Pagination[VehicleOut])
 def list_vehicle(
-        request,
-        service_street_code: str = Query(None, title="服务街道编码"),
-        plate_number: str = Query(None, title="车牌号"),
-        company_id: str = Query(None, title="所属公司"),
-        page: Page = Query(...),
+    request,
+    service_street_code: str = Query(None, title="服务街道编码"),
+    plate_number: str = Query(None, title="车牌号"),
+    company_id: str = Query(None, title="所属公司"),
+    page: Page = Query(...),
 ):
     """车辆列表"""
     # TODO: 权限限制。

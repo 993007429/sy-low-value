@@ -4,9 +4,11 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from ninja import Query, Router
 
+from infra.decorators import permission_required
 from infra.schemas import Page, Pagination
 from recycle.models import Company
-from recycle.schemas.company import CompanyOut, CompanyDropdownOut
+from recycle.permissions import IsPlatformManager
+from recycle.schemas.company import CompanyDropdownOut, CompanyOut
 
 router = Router(tags=["收运公司"])
 
@@ -18,13 +20,13 @@ def list_all_companies(request):
 
 
 @router.get("", response=Pagination[CompanyOut])
+@permission_required([IsPlatformManager])
 def list_companies(
-        request,
-        name: str = Query(None, title="公司名称"),
-        uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
-        page: Page = Query(...),
+    request,
+    name: str = Query(None, title="公司名称"),
+    uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
+    page: Page = Query(...),
 ):
-    # TODO：限制权限为再生资源平台管理员
     queryset = Company.objects.annotate(vehicle_count=Count("vehicle")).prefetch_related("manager").order_by("-id")
     if name:
         queryset = queryset.filter(name__contains=name)

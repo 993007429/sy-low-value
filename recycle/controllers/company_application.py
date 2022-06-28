@@ -4,12 +4,11 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
-from django.db.models import Count
 from ninja import Query, Router
 from ninja.errors import HttpError
 
 from infra.schemas import Page, Pagination
-from recycle.models import Company, CompanyManager, User, Region
+from recycle.models import Company, CompanyManager, Region, User
 from recycle.models.company_application import ApprovalState, CompanyApplication
 from recycle.schemas.company_application import (
     CompanyApplicationIn,
@@ -23,7 +22,6 @@ router = Router(tags=["收运公司注册、审核"])
 @router.post("", response={201: CompanyApplicationOut})
 def submit_company_application(request, data: CompanyApplicationIn):
     """提交注册公司申请"""
-    # FIXME: area_name改为根据code查询
     try:
         region = Region.objects.get(code=data.registration_region_code)
     except Region.DoesNotExist:
@@ -34,11 +32,11 @@ def submit_company_application(request, data: CompanyApplicationIn):
 
 @router.get("", response=Pagination[CompanyApplicationOut])
 def list_company_applications(
-        request,
-        state: ApprovalState = Query(None, title="审核状态"),
-        name: str = Query(None, title="公司名称"),
-        uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
-        page: Page = Query(...),
+    request,
+    state: ApprovalState = Query(None, title="审核状态"),
+    name: str = Query(None, title="公司名称"),
+    uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
+    page: Page = Query(...),
 ):
     """查看清运公司审核列表"""
 
