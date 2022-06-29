@@ -19,7 +19,7 @@ from recycle.schemas.company_application import (
 router = Router(tags=["收运公司注册、审核"])
 
 
-@router.post("", response={201: CompanyApplicationOut})
+@router.post("", response={201: CompanyApplicationOut}, auth=None)
 def submit_company_application(request, data: CompanyApplicationIn):
     """提交注册公司申请"""
     try:

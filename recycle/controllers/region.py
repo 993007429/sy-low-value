@@ -9,7 +9,7 @@ from recycle.schemas.region import RegionOut
 router = Router(tags=["区域"])
 
 
-@router.get("/area", response=List[RegionOut])
+@router.get("/area", auth=None, response=List[RegionOut])
 def list_areas(request):
     """区列表"""
 

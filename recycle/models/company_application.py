@@ -1,6 +1,7 @@
 from django.db import models
 
 from infra.db.models import BaseModel
+from recycle.models import CompanyForm
 
 
 class ApprovalState(models.TextChoices):
@@ -18,7 +19,7 @@ class CompanyApplication(BaseModel):
     address = models.CharField("公司地址", max_length=255)
     registration_region_code = models.CharField("注册区编码", max_length=32)
     registration_region_name = models.CharField("注册区名称", max_length=32)
-    form = models.CharField("企业类型", max_length=32)
+    form = models.CharField("企业类型", choices=CompanyForm.choices(), max_length=32)
     legal_person = models.CharField("法人", max_length=32)
     legal_person_id_card = models.CharField("法人身份证", max_length=32)
     business_license = models.CharField("营业执照", max_length=512)
