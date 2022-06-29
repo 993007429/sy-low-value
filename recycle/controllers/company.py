@@ -4,10 +4,11 @@ from django.core.paginator import Paginator
 from django.db.models import Count
 from ninja import Query, Router
 
+from infra.authentication import User
 from infra.decorators import permission_required
 from infra.schemas import Page, Pagination
 from recycle.models import Company
-from recycle.permissions import IsPlatformManager
+from recycle.permissions import IsCompanyManager, IsPlatformManager
 from recycle.schemas.company import CompanyDropdownOut, CompanyOut
 
 router = Router(tags=["收运公司"])
@@ -35,3 +36,11 @@ def list_companies(
     paginator = Paginator(queryset, page.page_size)
     p = paginator.page(page.page)
     return {"count": paginator.count, "results": list(p.object_list)}
+
+
+@router.get("/mine", response=CompanyOut)
+@permission_required([IsCompanyManager])
+def my_company(request):
+    user: User = request.auth
+    company = Company.objects.annotate(vehicle_count=Count("vehicle")).select_related("manager").get(manager__user=user)
+    return company

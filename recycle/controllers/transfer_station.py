@@ -49,12 +49,10 @@ def import_stations(request, file: UploadedFile = File(...)):
     sheet = wb.worksheets[0]
     stations = list()
 
-    column_row: Tuple[Cell] = sheet[1]
-    if len(column_row) < len(columns):
+    column_row: Tuple[Cell] = sheet[1][: len(columns)]
+    column_row_values = [c.value for c in column_row]
+    if column_row_values != columns:
         raise HttpError(400, f"录入错误，请检查表头是否符合\n {columns}")
-    for idx, name in enumerate(columns):
-        if column_row[idx].value != name:
-            raise HttpError(400, f"录入错误，缺少'{name}'列")
 
     streets = Region.objects.filter(parent__code=settings.REGION_CODE, grade=RegionGrade.STREET)
     streets_dict = {r.name: r for r in streets}
