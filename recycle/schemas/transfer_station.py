@@ -1,3 +1,5 @@
+from typing import List
+
 from ninja import ModelSchema, Schema
 from pydantic import Field
 
@@ -9,6 +11,7 @@ class TransferStationOut(ModelSchema):
     street_name: str = Field(None, title="所属街道名称", alias="street.name")
     community_code: str = Field(title="所属社区", alias="community.code")
     community_name: str = Field(title="所属社区", alias="community.name")
+    varieties_display: List[str] = Field(None, title="经营品种")
 
     class Config:
         model = TransferStation
@@ -19,7 +22,6 @@ class TransferStationOut(ModelSchema):
             "longitude",
             "latitude",
             "nature",
-            "varieties",
             "manager_name",
             "manager_phone",
         ]

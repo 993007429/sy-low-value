@@ -55,3 +55,7 @@ class TransferStation(BaseModel):
     )
     manager_name = models.CharField("负责人姓名", max_length=32)
     manager_phone = models.CharField("负责人联系方式", max_length=32)
+
+    @property
+    def varieties_display(self):
+        return [RubbishVariety(v).label for v in self.varieties]
