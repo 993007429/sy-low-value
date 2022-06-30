@@ -17,7 +17,6 @@ DATABASES = {
     }
 }
 
-
 sentry_sdk.init(
     dsn="http://c3b17646c4534ae3b0808f66e1231287@sentry.ztbory.com/18",
     integrations=[DjangoIntegration()],
@@ -27,7 +26,5 @@ sentry_sdk.init(
     traces_sample_rate=0.1,
 )
 
-JWT_EXPIRE = 60 * 60 * 24 * 1
-
-MINI_APP_ID = "wx0f9115bab5e083be"
-MINI_APP_SECRET = "b5368dc0050417e60323746ca5a6b9f8"
+EMAIL_HOST_USER = "zhuangbaojun@ztbory.com"
+EMAIL_HOST_PASSWORD = "Gang8dai"
