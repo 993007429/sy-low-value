@@ -1,5 +1,5 @@
 wsgi_app = "sy_low_value.wsgi"
-bind = ["0.0.0.0:8540"]
+bind = ["0.0.0.0:8146"]
 workers = 16
 worker_class = "gevent"
 # default 1000. The maximum number of simultaneous clients.
