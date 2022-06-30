@@ -2,13 +2,14 @@ from typing import List
 
 from django.core.paginator import Paginator
 from django.db.models import Count
-from ninja import Query, Router
+from ninja import Path, Query, Router
+from ninja.errors import HttpError
 
 from infra.authentication import User
 from infra.decorators import permission_required
 from infra.schemas import Page, Pagination
-from recycle.models import Company
-from recycle.permissions import IsCompanyManager, IsPlatformManager
+from recycle.models import Company, CompanyManager, PlatformManager
+from recycle.permissions import IsPlatformManager
 from recycle.schemas.company import CompanyDropdownOut, CompanyOut
 
 router = Router(tags=["收运公司"])
@@ -24,8 +25,8 @@ def list_all_companies(request):
 @permission_required([IsPlatformManager])
 def list_companies(
     request,
-    name: str = Query(None, title="公司名称"),
-    uniform_social_credit_code: str = Query(None, title="统一社会信用代码"),
+    name: str = Query(None, description="公司名称"),
+    uniform_social_credit_code: str = Query(None, description="统一社会信用代码"),
     page: Page = Query(...),
 ):
     queryset = Company.objects.annotate(vehicle_count=Count("vehicle")).prefetch_related("manager").order_by("-id")
@@ -38,9 +39,20 @@ def list_companies(
     return {"count": paginator.count, "results": list(p.object_list)}
 
 
-@router.get("/mine", response=CompanyOut)
-@permission_required([IsCompanyManager])
-def my_company(request):
+@router.get("/{credit_code}", response=CompanyOut)
+def get_company_by_credit_code(request, credit_code: str = Path(..., description="公司统一社会信用代码")):
     user: User = request.auth
-    company = Company.objects.annotate(vehicle_count=Count("vehicle")).select_related("manager").get(manager__user=user)
+    queryset = (
+        Company.objects.annotate(vehicle_count=Count("vehicle"))
+        .filter(uniform_social_credit_code=credit_code)
+        .select_related("manager")
+    )
+    if PlatformManager.objects.filter(user=user).exists():
+        company = queryset.first()
+    elif CompanyManager.objects.filter(user=user).exists():
+        company = queryset.filter(manager__user=user).first()
+    else:
+        raise HttpError(403, "permission denied.")
+    if not company:
+        raise HttpError(404, "清运公司不存在")
     return company
