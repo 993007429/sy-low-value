@@ -8,7 +8,7 @@ from ninja.files import UploadedFile
 from openpyxl import load_workbook
 from openpyxl.cell import Cell
 
-from infra.schemas import Page, Pagination
+from infra.schemas import Pagination
 from recycle.models import Region, RegionGrade, RubbishVariety, StationNature, TransferStation
 from recycle.schemas.transfer_station import TransferStationImportOut, TransferStationOut
 
@@ -22,7 +22,8 @@ def list_stations(
     street_code: str = Query(None, title="街道编号"),
     community_code: str = Query(None, title="社区编号"),
     nature: StationNature = Query(None, title="场所性质"),
-    page: Page = Query(...),
+    page: int = Query(default=1, gt=0),
+    page_size: int = Query(default=20, gt=0, le=10000),
 ):
     """可回收物中转站台账列表"""
 
@@ -35,8 +36,8 @@ def list_stations(
         stations = stations.filter(community__code=community_code)
     if nature:
         stations = stations.filter(nature=nature)
-    paginator = Paginator(stations, page.page_size)
-    p = paginator.page(page.page)
+    paginator = Paginator(stations, page_size)
+    p = paginator.page(page)
     return {"count": paginator.count, "results": list(p.object_list)}
 
 
