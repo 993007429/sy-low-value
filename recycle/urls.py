@@ -13,6 +13,7 @@ from .controllers.company import router as company_router
 from .controllers.company_application import router as company_application_router
 from .controllers.driver import router as driver_router
 from .controllers.inbound import router as inbound_router
+from .controllers.inbound_statistics import router as inbound_statistics_router
 from .controllers.outbound import router as outbound_router
 from .controllers.region import router as region_router
 from .controllers.token import router as token_router
@@ -45,6 +46,7 @@ api.add_router("/driver", driver_router)
 api.add_router("/transfer-station", transfer_station_router)
 api.add_router("/inbound", inbound_router)
 api.add_router("/outbound", outbound_router)
+api.add_router("/inbound-statistics", inbound_statistics_router)
 
 urlpatterns = [
     path("", api.urls),
