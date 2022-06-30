@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from ninja import Query, Router
 from ninja.errors import HttpError
 
-from infra.schemas import Page, Pagination
+from infra.schemas import Pagination
 from recycle.models import Company, Region, RegionGrade, User, Vehicle
 from recycle.schemas.vehicle import VehicleIn, VehicleOut
 
@@ -41,7 +41,8 @@ def list_vehicle(
     service_street_code: str = Query(None, title="服务街道编码"),
     plate_number: str = Query(None, title="车牌号"),
     company_id: str = Query(None, title="所属公司"),
-    page: Page = Query(...),
+    page: int = Query(default=1, gt=0),
+    page_size: int = Query(default=20, gt=0, le=10000),
 ):
     """车辆列表"""
     # TODO: 权限限制。
@@ -56,8 +57,8 @@ def list_vehicle(
         queryset = queryset.filter(plate_number=plate_number)
     if company_id:
         queryset = queryset.filter(company_id=company_id)
-    paginator = Paginator(queryset, page.page_size)
-    p = paginator.page(page.page)
+    paginator = Paginator(queryset, page_size)
+    p = paginator.page(page)
     return {"count": paginator.count, "results": list(p.object_list)}
 
 
