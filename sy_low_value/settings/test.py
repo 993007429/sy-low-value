@@ -15,7 +15,5 @@ DATABASES = {
     }
 }
 
-JWT_EXPIRE = 60 * 60 * 24 * 1
-
-MINI_APP_ID = "wx0f9115bab5e083be"
-MINI_APP_SECRET = "b5368dc0050417e60323746ca5a6b9f8"
+EMAIL_HOST_USER = "zhuangbaojun@ztbory.com"
+EMAIL_HOST_PASSWORD = "Gang8dai"
