@@ -17,6 +17,7 @@ def list_outbound_records(
     request,
     start_date: date = Query(None, title="开始日期"),
     end_date: date = Query(None, title="截止日期"),
+    station_id: str = Query(None, description="可回收物中转站"),
     plate_number: str = Query(None, title="车牌号"),
     category: str = Query(None, title="细分品类"),
     place_to_go: str = Query(None, title="去向"),
@@ -30,6 +31,8 @@ def list_outbound_records(
     if end_date:
         end_date = end_date + timedelta(days=1)
         queryset = queryset.filter(net_weight_time__lte=end_date)
+    if station_id:
+        queryset = queryset.filter(station_id=station_id)
     if plate_number:
         queryset = queryset.filter(plate_number=plate_number)
     if category:

@@ -15,11 +15,12 @@ router = Router(tags=["进场记录"])
 @router.get("", response=Pagination[InboundRecordOut])
 def list_inbound_records(
     request,
-    start_date: date = Query(None, title="开始日期"),
-    end_date: date = Query(None, title="截止日期"),
-    plate_number: str = Query(None, title="车牌号"),
-    carrier_credit_code: str = Query(None, title="承运公司统一信用代码"),
-    source_street: str = Query(None, title="来源街道"),
+    start_date: date = Query(None, description="开始日期"),
+    end_date: date = Query(None, description="截止日期"),
+    station_id: str = Query(None, description="可回收物中转站"),
+    plate_number: str = Query(None, description="车牌号"),
+    carrier_credit_code: str = Query(None, description="承运公司统一信用代码"),
+    source_street: str = Query(None, description="来源街道"),
     page: Page = Query(...),
 ):
     """中转站进场记录"""
@@ -30,6 +31,8 @@ def list_inbound_records(
     if end_date:
         end_date = end_date + timedelta(days=1)
         queryset = queryset.filter(net_weight_time__lte=end_date)
+    if station_id:
+        queryset = queryset.filter(station_id=station_id)
     if plate_number:
         queryset = queryset.filter(plate_number=plate_number)
     if carrier_credit_code:
