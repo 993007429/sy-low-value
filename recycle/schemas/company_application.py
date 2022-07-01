@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 from typing import Literal
 
 from ninja import Schema
@@ -29,6 +30,8 @@ class CompanyApplicationBase(Schema):
     manager_address: str = Field(title="居住地址", max_length=255)
     manager_id_card_front: AnyHttpUrl = Field(title="身份证正面")
     manager_id_card_back: AnyHttpUrl = Field(title="身份证背面")
+    applied_at: datetime = Field(None, title="申请时间", alias="created_at")
+    processed_at: datetime = Field(None, title="审核时间")
 
     @validator("uniform_social_credit_code")
     def validate_uniform_social_credit_code(cls, v):

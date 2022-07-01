@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
+from django.utils import timezone
 from ninja import Query, Router
 from ninja.errors import HttpError
 
@@ -64,6 +65,7 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
         except CompanyApplication.DoesNotExist:
             raise HttpError(404, "审批不存在或已审批完成")
         application.state = data.state
+        application.processed_at = timezone.now()
         if data.state == ApprovalState.REJECTED:
             application.reason = data.reason
 

@@ -38,3 +38,4 @@ class CompanyApplication(BaseModel):
     state = models.CharField("审核状态", max_length=32, choices=ApprovalState.choices, default=ApprovalState.APPROVING)
     # 审核拒绝原因(仅在拒绝时有效)
     reason = models.CharField("审核拒绝原因", max_length=255, null=True, blank=True)
+    processed_at = models.DateTimeField("审核时间", null=True, blank=True)
