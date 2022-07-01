@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import List
 
 from dateutil.relativedelta import relativedelta
@@ -75,11 +75,24 @@ def calc_throughput_trend_daily(
         .annotate(throughput=Sum("net_weight"))
         .order_by("day")
     )
+
+    # 有数据的日期
+    days = list()
     for agg in aggregations:
         if not agg["throughput"]:  # sum没有值时会返回None
             agg["throughput"] = 0
+        days.append(agg["day"])
 
-    return aggregations
+    aggregations_list = list(aggregations)
+
+    while start_date < end_date:
+        agg = dict()
+        if start_date not in days:
+            agg["day"] = start_date
+            agg["throughput"] = 0
+            aggregations_list.append(agg)
+        start_date += relativedelta(days=1)
+    return sorted(aggregations_list, key=lambda x: x["day"])
 
 
 @router.get("/throughput-trend-monthly", response=List[ThroughputTrendMonthlyOut])
@@ -101,11 +114,24 @@ def calc_throughput_trend_monthly(
         .annotate(throughput=Sum("net_weight"))
         .order_by("month")
     )
+
+    # 有数据的月份
+    months = list()
     for agg in aggregations:
         if not agg["throughput"]:  # sum没有值时会返回None
             agg["throughput"] = 0
+        months.append(agg["month"].date())
 
-    return aggregations
+    aggregations_list = list(aggregations)
+
+    while start_date < end_date:
+        agg = dict()
+        if start_date not in months:
+            agg["month"] = datetime.combine(start_date, datetime.min.time())
+            agg["throughput"] = 0
+            aggregations_list.append(agg)
+        start_date += relativedelta(months=1)
+    return sorted(aggregations_list, key=lambda x: x["month"].replace(tzinfo=None))
 
 
 @router.get("throughput-by-street", response=List[ThroughputByStreetOut])
