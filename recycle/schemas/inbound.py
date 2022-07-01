@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from ninja import Schema
 from pydantic import AnyHttpUrl, Field
@@ -36,3 +37,9 @@ class InboundRecordOut(InboundRecordIn):
     station_id: str = Field(title="中转站id")
     carrier_id: str = Field(title="运输单位（清运公司）id")
     id: str
+
+
+class InboundRecordPaginationOut(Schema):
+    count: int
+    total_weight: float
+    results: List[InboundRecordOut] = []

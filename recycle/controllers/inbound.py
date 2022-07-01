@@ -1,18 +1,19 @@
 from datetime import date, timedelta
 
 from django.core.paginator import Paginator
+from django.db.models import Sum
 from ninja import Query, Router
 from ninja.errors import HttpError
 
-from infra.schemas import Page, Pagination
+from infra.schemas import Page
 from recycle.models import TransferStation, Vehicle
 from recycle.models.inbound import InboundRecord
-from recycle.schemas.inbound import InboundRecordIn, InboundRecordOut
+from recycle.schemas.inbound import InboundRecordIn, InboundRecordOut, InboundRecordPaginationOut
 
 router = Router(tags=["进场记录"])
 
 
-@router.get("", response=Pagination[InboundRecordOut])
+@router.get("", response=InboundRecordPaginationOut)
 def list_inbound_records(
     request,
     start_date: date = Query(None, description="开始日期"),
@@ -42,7 +43,10 @@ def list_inbound_records(
 
     paginator = Paginator(queryset, page.page_size)
     p = paginator.page(page.page)
-    return {"count": paginator.count, "results": list(p.object_list)}
+    aggregations = queryset.aggregate(total_weight=Sum("net_weight"))
+    if (total_weight := aggregations["total_weight"]) is None:
+        total_weight = 0
+    return InboundRecordPaginationOut(count=paginator.count, total_weight=total_weight, results=list(p.object_list))
 
 
 @router.post("", response={201: InboundRecordOut}, auth=None)
