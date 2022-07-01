@@ -27,7 +27,7 @@ class AuthToken(HttpBearer):
             user.token = token
             return user
         except ObjectDoesNotExist:
-            raise HttpError(status_code=404, message="user not found")
+            raise HttpError(status_code=401, message="user not found")
 
 
 def get_tokens_for_user(user: User):
