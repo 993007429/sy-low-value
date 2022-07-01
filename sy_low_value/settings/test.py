@@ -1,6 +1,6 @@
 from . import *  # noqa
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
