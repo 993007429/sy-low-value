@@ -37,6 +37,7 @@ class InboundRecordIn(InboundRecordBase):
 
 class InboundRecordOut(InboundRecordBase):
     station_id: str = Field(title="中转站id")
+    station_name: str = Field(default=None, title="中转站名称")
     carrier_id: str = Field(None, title="运输单位（清运公司）id")
     id: str
 
