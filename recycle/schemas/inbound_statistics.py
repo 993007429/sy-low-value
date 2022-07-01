@@ -23,3 +23,15 @@ class ThroughputTrendDailyOut(Schema):
 class ThroughputTrendMonthlyOut(Schema):
     throughput: float = Field(0, title="处理量")
     month: date
+
+
+class ThroughputByStreetOut(Schema):
+    street_name: str = Field(title="街道")
+    throughput: float = Field(title="可回收物处理重量")
+
+
+class ThroughputByStreetAndStationOut(Schema):
+    street_name: str = Field(title="街道")
+    station: str = Field(title="中转站名称")
+    recyclables_type: str = Field(title="可回收物类型")
+    throughput: float = Field(title="可回收物处理重量")

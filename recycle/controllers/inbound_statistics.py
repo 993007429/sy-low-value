@@ -2,13 +2,17 @@ from datetime import date, timedelta
 from typing import List
 
 from dateutil.relativedelta import relativedelta
+from django.core.paginator import Paginator
 from django.db.models import Count, F, Sum
 from django.db.models.functions import TruncMonth
 from ninja import Query, Router
 
+from infra.schemas import Page, Pagination
 from recycle.models import InboundRecord
 from recycle.schemas.inbound_statistics import (
     ThroughputByStationOut,
+    ThroughputByStreetAndStationOut,
+    ThroughputByStreetOut,
     ThroughputOut,
     ThroughputTrendDailyOut,
     ThroughputTrendMonthlyOut,
@@ -102,3 +106,47 @@ def calc_throughput_trend_monthly(
             agg["throughput"] = 0
 
     return aggregations
+
+
+@router.get("throughput-by-street", response=List[ThroughputByStreetOut])
+def cal_throughput_by_street(
+    request,
+    start_date: date = None,
+    end_date: date = None,
+):
+    """各街道处理量"""
+
+    records = InboundRecord.objects.all()
+    if start_date and end_date:
+        records = records.filter(net_weight_time__date__gte=start_date, net_weight_time__date__lte=end_date)
+    aggregations = (
+        records.annotate(street_name=F("source_street_name"))
+        .values("street_name")
+        .annotate(throughput=Sum("net_weight"))
+    )
+    for agg in aggregations:
+        if not agg["throughput"]:  # sum没有值时会返回None
+            agg["throughput"] = 0
+    return aggregations
+
+
+@router.get("throughput-by-street-and-station", response=Pagination[ThroughputByStreetAndStationOut])
+def cal_throughput_by_street_and_station(
+    request,
+    start_date: date = None,
+    end_date: date = None,
+    page: Page = Query(...),
+):
+    """按中转站统计各街道处理量"""
+
+    records = InboundRecord.objects.all()
+    if start_date and end_date:
+        records = records.filter(net_weight_time__date__gte=start_date, net_weight_time__date__lte=end_date)
+    result = (
+        records.annotate(street_name=F("source_street_name"))
+        .values("street_name", "station", "recyclables_type")
+        .annotate(throughput=Sum("net_weight"))
+    )
+    paginator = Paginator(result, page.page_size)
+    p = paginator.page(page.page)
+    return {"count": paginator.count, "results": list(p.object_list)}
