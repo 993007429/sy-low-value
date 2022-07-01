@@ -16,3 +16,5 @@ class VehicleIn(Schema):
 class VehicleOut(VehicleIn):
     id: int
     service_street_name: str = Field(None, title="服务街道名")
+    company_name: str = Field(None, title="所属单位名")
+    company_id: str

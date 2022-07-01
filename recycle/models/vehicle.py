@@ -31,3 +31,7 @@ class Vehicle(BaseModel):
     @property
     def service_street_name(self):
         return self.service_street.name
+
+    @property
+    def company_name(self):
+        return self.company.name

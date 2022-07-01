@@ -50,7 +50,7 @@ def list_vehicle(
     company = Company.objects.filter(manager__user=user).first()
     if company:  # 如果是公司用户则只能查看自己公司名下的车
         company_id = company.id
-    queryset = Vehicle.objects.all().select_related("service_street").order_by("id")
+    queryset = Vehicle.objects.all().select_related("service_street", "company").order_by("id")
     if service_street_code:
         queryset = queryset.filter(service_street__code=service_street_code)
     if plate_number:
