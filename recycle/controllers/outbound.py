@@ -45,7 +45,7 @@ def list_outbound_records(
     return {"count": paginator.count, "results": list(p.object_list)}
 
 
-@router.post("", response={201: OutboundRecordOut})
+@router.post("", response={201: OutboundRecordOut}, auth=None)
 def create_transfer_station_record(request, data: OutboundRecordIn):
     """添加出场记录"""
 

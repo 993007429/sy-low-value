@@ -45,7 +45,7 @@ def list_inbound_records(
     return {"count": paginator.count, "results": list(p.object_list)}
 
 
-@router.post("", response={201: InboundRecordOut})
+@router.post("", response={201: InboundRecordOut}, auth=None)
 def create_transfer_station_record(request, data: InboundRecordIn):
     """添加进场记录"""
 
