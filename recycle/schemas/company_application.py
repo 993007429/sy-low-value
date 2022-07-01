@@ -30,8 +30,6 @@ class CompanyApplicationBase(Schema):
     manager_address: str = Field(title="居住地址", max_length=255)
     manager_id_card_front: AnyHttpUrl = Field(title="身份证正面")
     manager_id_card_back: AnyHttpUrl = Field(title="身份证背面")
-    applied_at: datetime = Field(None, title="申请时间", alias="created_at")
-    processed_at: datetime = Field(None, title="审核时间")
 
     @validator("uniform_social_credit_code")
     def validate_uniform_social_credit_code(cls, v):
@@ -48,6 +46,8 @@ class CompanyApplicationOut(CompanyApplicationBase):
     registration_region_name: str = Field(title="注册区名称", max_length=32)
     state: ApprovalState = Field(None, title="审核状态")
     reason: str = Field(None, title="审核拒绝原因")
+    applied_at: datetime = Field(None, title="申请时间", alias="created_at")
+    processed_at: datetime = Field(None, title="审核时间")
     id: int
 
 
