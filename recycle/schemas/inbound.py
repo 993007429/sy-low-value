@@ -6,7 +6,6 @@ from pydantic import AnyHttpUrl, Field
 
 
 class InboundRecordBase(Schema):
-    station_uuid: str = Field(title="中转站uuid", max_length=255)
     plate_number: str = Field(title="车牌号", max_length=32)
 
     driver: str = Field(default=None, title="司机姓名", max_length=32)
@@ -31,12 +30,13 @@ class InboundRecordBase(Schema):
 
 
 class InboundRecordIn(InboundRecordBase):
+    station_uuid: str = Field(title="中转站uuid", max_length=255)
     source_street_name: str = Field(None, title="来源街道", max_length=255)
 
 
-class InboundRecordOut(InboundRecordIn):
+class InboundRecordOut(InboundRecordBase):
     station_id: str = Field(title="中转站id")
-    carrier_id: str = Field(title="运输单位（清运公司）id")
+    carrier_id: str = Field(None, title="运输单位（清运公司）id")
     id: str
 
 
