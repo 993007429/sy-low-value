@@ -16,6 +16,7 @@ class TransferStationOut(ModelSchema):
     class Config:
         model = TransferStation
         model_fields = [
+            "id",
             "name",
             "management_company",
             "address",
