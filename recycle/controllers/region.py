@@ -27,6 +27,14 @@ def list_streets(request):
     return regions
 
 
+@router.get("/community", response=List[RegionOut])
+def list_communities(request, street_code: str):
+    """社区列表"""
+
+    regions = Region.objects.filter(parent__code=street_code, grade=RegionGrade.COMMUNITY).order_by("code")
+    return regions
+
+
 @router.get("/region-scope", response=List[RegionScopeOut])
 def scope_point(request, area_code: str = settings.REGION_CODE):
     """区域点位信息"""
