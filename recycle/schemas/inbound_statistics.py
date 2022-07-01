@@ -32,6 +32,6 @@ class ThroughputByStreetOut(Schema):
 
 class ThroughputByStreetAndStationOut(Schema):
     street_name: str = Field(title="街道")
-    station: str = Field(title="中转站名称")
+    station_name: str = Field(title="中转站名称")
     recyclables_type: str = Field(title="可回收物类型")
     throughput: float = Field(title="可回收物处理重量")

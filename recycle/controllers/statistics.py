@@ -5,7 +5,7 @@ from ninja.errors import HttpError
 from recycle.models import Company, Region, TransferStation, Vehicle
 from recycle.schemas.statistics import GeneralInformationOut
 
-router = Router(tags=["基本信息、地区范围点位、各街道处理量"])
+router = Router(tags=["基本信息"])
 
 
 @router.get("/general-information", response={200: GeneralInformationOut})
