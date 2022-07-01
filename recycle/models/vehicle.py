@@ -21,7 +21,7 @@ class Vehicle(BaseModel):
     service_street = models.ForeignKey("Region", on_delete=models.SET_NULL, null=True, blank=True)
     type = models.CharField("车辆类型", max_length=32, choices=VehicleType.choices)
     energy_type = models.CharField("能源类型", max_length=32, choices=EnergyType.choices)
-    load = models.PositiveSmallIntegerField("载重（t）")
+    load = models.FloatField("载重（t）")
     meet_spec = models.BooleanField("是否按规范喷涂")
 
     @property

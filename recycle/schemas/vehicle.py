@@ -9,7 +9,7 @@ class VehicleIn(Schema):
     service_street_code: str = Field(..., title="服务街道编码", max_length=32)
     type: VehicleType = Field(..., title="车辆类型")
     energy_type: EnergyType = Field(..., title="能源类型")
-    load: int = Field(..., title="载重量")
+    load: float = Field(..., title="载重量", gt=0)
     meet_spec: bool = Field(..., title="是否按规范喷涂")
 
 
