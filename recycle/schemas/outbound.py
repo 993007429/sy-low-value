@@ -7,6 +7,7 @@ from pydantic import AnyHttpUrl, Field
 
 class OutboundRecordBase(Schema):
     station_uuid: str = Field(title="中转站uuid", max_length=36)
+    uuid: str = Field(title="记录唯一id", max_length=36)
     plate_number: str = Field(title="车牌号", max_length=32)
 
     driver: str = Field(default=None, title="司机姓名", max_length=32)
