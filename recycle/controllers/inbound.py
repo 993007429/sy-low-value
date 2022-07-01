@@ -13,7 +13,7 @@ from recycle.schemas.inbound import InboundRecordIn, InboundRecordOut, InboundRe
 router = Router(tags=["进场记录"])
 
 
-@router.get("", response=InboundRecordPaginationOut)
+@router.get("", response=InboundRecordPaginationOut, auth=None)
 def list_inbound_records(
     request,
     start_date: date = Query(None, description="开始日期"),

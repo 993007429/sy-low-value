@@ -35,7 +35,7 @@ def create_vehicle(request, data: VehicleIn):
     return vehicle
 
 
-@router.get("", response=Pagination[VehicleOut])
+@router.get("", response=Pagination[VehicleOut], auth=None)
 def list_vehicle(
     request,
     service_street_code: str = Query(None, title="服务街道编码"),
@@ -45,8 +45,8 @@ def list_vehicle(
     page_size: int = Query(default=20, gt=0, le=10000),
 ):
     """车辆列表"""
-    # TODO: 权限限制。
-    user: User = request.auth
+    # TODO: 权限限制。 # FIXME: 暂时放开认证只能这么些，直接REQUEST.AUTH会报错
+    user: User = getattr(request, "auth", None)
     company = Company.objects.filter(manager__user=user).first()
     if company:  # 如果是公司用户则只能查看自己公司名下的车
         company_id = company.id
