@@ -7,7 +7,7 @@ class InboundRecord(BaseModel):
     """中转站进场记录, 即把可回收物送到可回收物中转站"""
 
     station = models.ForeignKey("TransferStation", on_delete=models.CASCADE)
-    uuid = models.UUIDField(unique=True)
+    uuid = models.CharField(unique=True, max_length=36)
     plate_number = models.CharField("车牌号", max_length=32)
     driver = models.CharField("司机姓名", max_length=32, null=True, blank=True)
     weigher = models.CharField("司磅员姓名", max_length=32, null=True, blank=True)
