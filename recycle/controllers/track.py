@@ -2,42 +2,35 @@ import logging
 from datetime import datetime
 from typing import List
 
+from influxdb_client.client.write_api import SYNCHRONOUS
 from ninja import Query, Router
+from ninja.errors import HttpError
 
+from infra import const
+from infra.db.influxdb import flux_tables_to_models, influxdb_client
+from recycle.models.track import Track
 from recycle.schemas.track import TrackIn, TrackOut
 
 router = Router(tags=["车辆轨迹"])
 logger = logging.getLogger("influxdb.query")
 
 
+# TODO: 增加认证
 @router.post("", response={201: None}, auth=None)
 def create_track(request, data: TrackIn):
-    print(data)
-
-
-# def create_track2(request, data: TrackIn):
-#     """空气质量传感器数据上传"""
-#
-#     write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
-#     toilet = request.auth
-#     sensor = Sensor.objects.filter(sensor_id=air_quality_in.sensor_id).first()
-#     air_quality = AirQuality(
-#         toilet_name=toilet.name,
-#         terminal_id=air_quality_in.terminal_id,
-#         sensor_id=air_quality_in.sensor_id,
-#         installation_location=sensor.installation_location if sensor else None,
-#         gather_time=air_quality_in.gather_time,
-#         temperature=air_quality_in.temperature,
-#         humidity=air_quality_in.humidity,
-#         pm2_5=air_quality_in.pm2_5,
-#         pm10=air_quality_in.pm10,
-#         co2=air_quality_in.co2,
-#     )
-#     data_point = air_quality.to_data_point()
-#     write_api.write(bucket=const.INFLUXDB_BUCKET, record=data_point)
-#     # 更新传感器最后通信时间
-#     Sensor.update_last_communication_time(air_quality.sensor_id, air_quality.gather_time)
-#     return 201
+    write_api = influxdb_client.write_api(write_options=SYNCHRONOUS)
+    track = Track(
+        plate_number=data.plate_number,
+        tracked_at=data.tracked_at,
+        phone=data.phone,
+        longitude=data.longitude,
+        latitude=data.latitude,
+        altitude=data.altitude,
+        speed=data.speed,
+        direction=data.direction,
+    )
+    data_point = track.to_data_point()
+    write_api.write(bucket=const.INFLUXDB_BUCKET, record=data_point)
 
 
 @router.get("", response=List[TrackOut])
@@ -48,12 +41,26 @@ def list_tracks(
     end_time: datetime = Query(..., description="结束时间"),
 ):
     # TODO: 更换真实数据, 限制时间范围
-    tracks = [
-        TrackOut(plate_number="京A1234", tracked_at=0, longitude=116.466522, latitude=39.893098),
-        TrackOut(plate_number="京A1234", tracked_at=0, longitude=116.482229, latitude=39.892966),
-        TrackOut(plate_number="京A1234", tracked_at=0, longitude=116.496305, latitude=39.888027),
-        TrackOut(plate_number="京A1234", tracked_at=0, longitude=116.488409, latitude=39.882363),
-        TrackOut(plate_number="京A1234", tracked_at=0, longitude=116.478795, latitude=39.885261),
-        TrackOut(plate_number="京A1234", tracked_at=0, longitude=116.478795, latitude=39.890332),
-    ]
+    if start_time >= end_time:
+        raise HttpError(400, "开始时间应小于结束时间")
+
+    flux_params = {
+        "start": start_time,
+        "stop": end_time,
+        "plate_number": plate_number,
+    }
+    query_api = influxdb_client.query_api()
+    flux = (
+        f'from(bucket: "{const.INFLUXDB_BUCKET}")'
+        "|> range(start: start, stop: stop)"
+        '|> filter(fn: (r) => r._measurement == "track")'
+        '|> pivot(rowKey: ["_time"], columnKey: ["_field",], valueColumn: "_value")'
+    )
+    if plate_number:
+        flux += "|> filter(fn: (r) => r.terminal_id == terminal_id)"
+    flux += '|> group()|> sort(columns: ["_time"], desc: true)'
+    logger.debug(flux)
+
+    tables = query_api.query(flux, params=flux_params)
+    tracks = flux_tables_to_models(tables, TrackOut)
     return tracks
