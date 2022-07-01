@@ -159,6 +159,11 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
+        "influxdb.query": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
     },
 }
 

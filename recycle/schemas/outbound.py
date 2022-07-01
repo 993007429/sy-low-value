@@ -6,11 +6,12 @@ from pydantic import AnyHttpUrl, Field
 
 
 class OutboundRecordBase(Schema):
-    station_name: str = Field(title="中转站名称", max_length=255)
+    station_uuid: str = Field(title="中转站uuid", max_length=36)
     plate_number: str = Field(title="车牌号", max_length=32)
-    driver: str = Field(title="司机姓名", max_length=32)
-    weigher: str = Field(title="司磅员姓名", max_length=32)
-    carrier_name: str = Field(title="运输单位", max_length=255)
+
+    driver: str = Field(default=None, title="司机姓名", max_length=32)
+    weigher: str = Field(default=None, title="司磅员姓名", max_length=32)
+    carrier_name: str = Field(default=None, title="运输单位", max_length=255)
 
     tare_weight: float = Field(title="皮重（kg）")
     gross_weight: float = Field(title="毛重（kg）")
@@ -22,14 +23,14 @@ class OutboundRecordBase(Schema):
     recyclables_type: str = Field(title="可回收物类型, e.g. 低值", max_length=32)
     category: str = Field(title="细分品类 e.g. 废塑料")
 
-    plate_number_photo_in: AnyHttpUrl = Field(title="车牌识别照片")
-    vehicle_head_photo_in: AnyHttpUrl = Field(title="车头照片")
-    vehicle_roof_photo_in: AnyHttpUrl = Field(title="车顶照片")
-    plate_number_photo_out: AnyHttpUrl = Field(title="车牌识别照片")
-    vehicle_head_photo_out: AnyHttpUrl = Field(title="车头照片")
-    vehicle_roof_photo_out: AnyHttpUrl = Field(title="车顶照片")
+    plate_number_photo_in: AnyHttpUrl = Field(default=None, title="进入时车牌识别照片")
+    vehicle_head_photo_in: AnyHttpUrl = Field(default=None, title="进入时车头照片")
+    vehicle_roof_photo_in: AnyHttpUrl = Field(default=None, title="进入时车顶照片")
+    plate_number_photo_out: AnyHttpUrl = Field(default=None, title="离开时车牌识别照片")
+    vehicle_head_photo_out: AnyHttpUrl = Field(default=None, title="离开时车头照片")
+    vehicle_roof_photo_out: AnyHttpUrl = Field(default=None, title="离开时车顶照片")
 
-    place_to_go: str = Field(title="去向")
+    place_to_go: str = Field(default=None, title="去向")
 
 
 class OutboundRecordIn(OutboundRecordBase):

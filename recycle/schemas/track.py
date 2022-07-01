@@ -20,4 +20,7 @@ class TrackIn(TrackBase):
 
 
 class TrackOut(Schema):
-    pass
+    plate_number: str = Field(title="车牌号", max_length=32)
+    tracked_at: datetime = Field(title="定位时间")
+    longitude: float = Field(title="经度")
+    latitude: float = Field(title="纬度")

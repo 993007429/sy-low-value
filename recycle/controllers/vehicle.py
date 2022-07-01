@@ -59,7 +59,10 @@ def list_vehicle(
         queryset = queryset.filter(company_id=company_id)
     paginator = Paginator(queryset, page_size)
     p = paginator.page(page)
-    return {"count": paginator.count, "results": list(p.object_list)}
+
+    # TODO 查询车辆当前最新位置
+    results = list(p.object_list)
+    return {"count": paginator.count, "results": results}
 
 
 @router.put("/{id_}", response=VehicleOut)

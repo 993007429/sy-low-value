@@ -8,7 +8,7 @@ from ninja.errors import HttpError
 from infra.schemas import Page
 from recycle.models import TransferStation, Vehicle
 from recycle.models.inbound import InboundRecord
-from recycle.schemas.inbound import InboundRecordIn, InboundRecordOut, InboundRecordPaginationOut
+from recycle.schemas.inbound import InboundRecordIn, InboundRecordPaginationOut
 
 router = Router(tags=["进场记录"])
 
@@ -49,24 +49,23 @@ def list_inbound_records(
     return InboundRecordPaginationOut(count=paginator.count, total_weight=total_weight, results=list(p.object_list))
 
 
-@router.post("", response={201: InboundRecordOut}, auth=None)
+@router.post("", response={201: None}, auth=None)
 def create_transfer_station_record(request, data: InboundRecordIn):
     """添加进场记录"""
 
     try:
-        station = TransferStation.objects.get(name=data.station_name)
-        vehicle = Vehicle.objects.select_related("company").get(plate_number=data.plate_number)
+        station = TransferStation.objects.get(uuid=data.station_uuid)
+        vehicle = Vehicle.objects.select_related("company").filter(plate_number=data.plate_number).first()
     except TransferStation.DoesNotExist:
-        raise HttpError(404, f"中转站 {data.station_name} 不存在")
-    except Vehicle.DoesNotExist:
-        raise HttpError(404, f"运输车辆 {data.plate_number} 不存在")
+        raise HttpError(404, f"中转站 {data.station_uuid} 不存在")
+    carrier_name = vehicle.company.name if vehicle else data.carrier_name
     inbound = InboundRecord.objects.create(
         station=station,
         plate_number=data.plate_number,
         driver=data.driver,
         weigher=data.weigher,
-        carrier=vehicle.company,
-        carrier_name=data.carrier_name,
+        carrier=vehicle.company if vehicle else None,
+        carrier_name=carrier_name,
         source_street_name=data.source_street_name,
         tare_weight=data.tare_weight,
         gross_weight=data.gross_weight,

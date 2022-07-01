@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from infra.db.models import BaseModel
+from infra.utils import uuid1
 
 
 class StationNature(models.TextChoices):
@@ -26,6 +27,7 @@ class TransferStation(BaseModel):
     """可回收物中转站"""
 
     name = models.CharField("中转站名称", max_length=255, unique=True)
+    uuid = models.UUIDField(default=uuid1)
     street = models.ForeignKey(
         to="Region",
         db_constraint=False,

@@ -8,7 +8,7 @@ from ninja.errors import HttpError
 from infra.schemas import Page
 from recycle.models import TransferStation
 from recycle.models.outbound import OutboundRecord
-from recycle.schemas.outbound import OutboundRecordIn, OutboundRecordOut, OutboundRecordPaginationOut
+from recycle.schemas.outbound import OutboundRecordIn, OutboundRecordPaginationOut
 
 router = Router(tags=["出场记录"])
 
@@ -49,14 +49,14 @@ def list_outbound_records(
     return OutboundRecordPaginationOut(count=paginator.count, total_weight=total_weight, results=list(p.object_list))
 
 
-@router.post("", response={201: OutboundRecordOut}, auth=None)
+@router.post("", response={201: None}, auth=None)
 def create_transfer_station_record(request, data: OutboundRecordIn):
     """添加出场记录"""
 
     try:
-        station = TransferStation.objects.get(name=data.station_name)
+        station = TransferStation.objects.get(name=data.station_uuid)
     except TransferStation.DoesNotExist:
-        raise HttpError(404, f"中转站 {data.station_name} 不存在")
+        raise HttpError(404, f"中转站 {data.station_uuid} 不存在")
     outbound = OutboundRecord.objects.create(
         station=station,
         plate_number=data.plate_number,
