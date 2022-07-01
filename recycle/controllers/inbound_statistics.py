@@ -143,8 +143,8 @@ def cal_throughput_by_street_and_station(
     if start_date and end_date:
         records = records.filter(net_weight_time__date__gte=start_date, net_weight_time__date__lte=end_date)
     result = (
-        records.annotate(street_name=F("source_street_name"))
-        .values("street_name", "station", "recyclables_type")
+        records.annotate(street_name=F("source_street_name"), station_name=F("station__name"))
+        .values("street_name", "station_name", "recyclables_type")
         .annotate(throughput=Sum("net_weight"))
     )
     paginator = Paginator(result, page.page_size)

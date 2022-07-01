@@ -4,6 +4,7 @@ from .driver import *  # noqa
 from .inbound import *  # noqa
 from .outbound import *  # noqa
 from .region import *  # noqa
+from .region_scope import *  # noqa
 from .transfer_station import *  # noqa
 from .user import *  # noqa
 from .vehicle import *  # noqa

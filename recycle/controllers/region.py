@@ -36,16 +36,14 @@ def scope_point(request, area_code: str = settings.REGION_CODE):
     scope_qs = RegionScope.objects.filter(code__gte=zone_start, code__lt=zone_end)
 
     attr_dict = {
-        "area": ["area_coding", "area_name"],
-        "street": ["street_coding", "street_name"],
-        "comm": ["comm_coding", "comm_name"],
+        "street": ["code", "name"],
     }
 
     return_list = list()
     _scope_attr = attr_dict.get(_scope)
     for scope in scope_qs:
-        scope_code = getattr(scope, _scope_attr[0])
-        scope_name = getattr(scope, _scope_attr[1])
+        region_code = getattr(scope, _scope_attr[0])
+        region_name = getattr(scope, _scope_attr[1])
 
         lon_center = scope.lon_center
         lat_center = scope.lat_center
@@ -60,13 +58,13 @@ def scope_point(request, area_code: str = settings.REGION_CODE):
 
             lon_center, lat_center = center_geo(tem_list)
         return_list.append(
-            {
-                "scope_code": str(scope_code),
-                "scope_name": scope_name,
-                "lon_lat": lon_lat,
-                "lon_center": lon_center,
-                "lat_center": lat_center,
-                "is_null": is_null,
-            }
+            RegionScopeOut(
+                region_code=region_code,
+                region_name=region_name,
+                lon_lat=lon_lat,
+                lon_center=lon_center,
+                lat_center=lat_center,
+                is_null=is_null,
+            )
         )
     return return_list
