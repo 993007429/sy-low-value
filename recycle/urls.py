@@ -16,6 +16,7 @@ from .controllers.inbound import router as inbound_router
 from .controllers.inbound_statistics import router as inbound_statistics_router
 from .controllers.outbound import router as outbound_router
 from .controllers.region import router as region_router
+from .controllers.statistics import router as statistics_router
 from .controllers.token import router as token_router
 from .controllers.transfer_station import router as transfer_station_router
 from .controllers.vehicle import router as vehicle_router
@@ -47,6 +48,7 @@ api.add_router("/transfer-station", transfer_station_router)
 api.add_router("/inbound", inbound_router)
 api.add_router("/outbound", outbound_router)
 api.add_router("/inbound-statistics", inbound_statistics_router)
+api.add_router("/statistics", statistics_router)
 
 urlpatterns = [
     path("", api.urls),
