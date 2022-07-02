@@ -35,7 +35,7 @@ def create_vehicle(request, data: VehicleIn):
     return vehicle
 
 
-@router.get("", response=Pagination[VehicleOut], auth=None)
+@router.get("", response=Pagination[VehicleOut])
 def list_vehicle(
     request,
     service_street_code: str = Query(None, title="服务街道编码"),
