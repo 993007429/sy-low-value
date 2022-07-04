@@ -15,8 +15,12 @@ DATABASES = {
     }
 }
 
-EMAIL_HOST_USER = "zhuangbaojun@ztbory.com"
-EMAIL_HOST_PASSWORD = "Gang8dai"
+EMAIL_HOST = "smtp-mail.outlook.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_SENDER_NAME = "顺义再生资源"
+EMAIL_HOST_USER = "ztbory@outlook.com"
+EMAIL_HOST_PASSWORD = "ztbr@2022"
 
 
 INFLUXDB_URL = "http://192.168.0.18:8086"
