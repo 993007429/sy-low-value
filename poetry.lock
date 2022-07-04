@@ -134,7 +134,7 @@ Django = ">=2.2"
 
 [[package]]
 name = "django-ninja"
-version = "0.18.0"
+version = "0.19.0"
 description = "Django Ninja - Fast Django REST framework"
 category = "main"
 optional = false
@@ -637,7 +637,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "74372506cc0ce32541b233b04364dc5b757c393c1ae42ffe325e011a18d78ea0"
+content-hash = "5b17f3448701ff6799eeab36fb12aa800306b95b2fe32ce34b4457cb797ae1c8"
 
 [metadata.files]
 asgiref = [
@@ -754,8 +754,8 @@ django-extensions = [
     {file = "django_extensions-3.1.5-py3-none-any.whl", hash = "sha256:9238b9e016bb0009d621e05cf56ea8ce5cce9b32e91ad2026996a7377ca28069"},
 ]
 django-ninja = [
-    {file = "django-ninja-0.18.0.tar.gz", hash = "sha256:e8b9edfa731580d49bdd85dc12570bb48bfbad4f2fb97218d00496b470ec5830"},
-    {file = "django_ninja-0.18.0-py3-none-any.whl", hash = "sha256:ea3fc210a6475ebdfacb3ca858207b4dd16afb7dc2807833506c6a32d70150ac"},
+    {file = "django-ninja-0.19.0.tar.gz", hash = "sha256:a639ee282edffe36f194f8f94622f31c0e80ab210e9cf958d586174737f4ed5e"},
+    {file = "django_ninja-0.19.0-py3-none-any.whl", hash = "sha256:b5c94fca6a16a8ff9d17f65180ea76a4f798c02a1c778d81b0a70c6b6c948db4"},
 ]
 dnspython = [
     {file = "dnspython-2.2.1-py3-none-any.whl", hash = "sha256:a851e51367fb93e9e1361732c1d60dab63eff98712e503ea7d92e6eccb109b4f"},
