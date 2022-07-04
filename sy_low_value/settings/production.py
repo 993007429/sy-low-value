@@ -37,3 +37,5 @@ INFLUXDB_URL = "http://192.168.0.18:8086"
 INFLUXDB_ORG = "ztbr"
 INFLUXDB_BUCKET = "sy-recycle"
 INFLUXDB_TOKEN = "o6yW70bJO_Q-_qFg32PCIR7tKvyo_ff2aAtPXfQrO6NoKL-60VFNjba9hTXO8OE7iRXxYSaWmjXuKIhXiU8VMQ=="
+
+AUTH_SERVER_URL = "http://auth.ztbory.com"

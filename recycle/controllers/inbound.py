@@ -6,15 +6,16 @@ from django.db.models import Sum
 from ninja import Query, Router
 from ninja.errors import HttpError
 
+from infra.authentication import AuthToken, LjflToken
 from infra.schemas import Page
-from recycle.models import TransferStation, Vehicle
+from recycle.models import Company, TransferStation, User, Vehicle
 from recycle.models.inbound import InboundRecord
 from recycle.schemas.inbound import InboundRecordIn, InboundRecordPaginationOut
 
 router = Router(tags=["进场记录"])
 
 
-@router.get("", response=InboundRecordPaginationOut, auth=None)
+@router.get("", response=InboundRecordPaginationOut, auth=[AuthToken(), LjflToken()])
 def list_inbound_records(
     request,
     start_date: date = Query(None, description="开始日期"),
@@ -27,7 +28,10 @@ def list_inbound_records(
 ):
     """中转站进场记录"""
 
-    queryset = InboundRecord.objects.order_by("-id")
+    queryset = InboundRecord.objects.prefetch_related("station").order_by("-id")
+    # 公司用户只能查看本公司记录
+    if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
+        queryset = queryset.filter(carrier=company)
     if start_date:
         queryset = queryset.filter(net_weight_time__gte=start_date)
     if end_date:

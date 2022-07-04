@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from ninja import Query, Router
 from ninja.errors import HttpError
 
+from infra.authentication import AuthToken, LjflToken
 from infra.schemas import Pagination
 from recycle.models import Company, Region, RegionGrade, User, Vehicle
 from recycle.schemas.vehicle import VehicleIn, VehicleOut
@@ -35,7 +36,7 @@ def create_vehicle(request, data: VehicleIn):
     return vehicle
 
 
-@router.get("", response=Pagination[VehicleOut])
+@router.get("", response=Pagination[VehicleOut], auth=(AuthToken(), LjflToken()))
 def list_vehicle(
     request,
     service_street_code: str = Query(None, title="服务街道编码"),
@@ -44,13 +45,12 @@ def list_vehicle(
     page: int = Query(default=1, gt=0),
     page_size: int = Query(default=20, gt=0, le=10000),
 ):
-    """车辆列表"""
-    # TODO: 权限限制。 # FIXME: 暂时放开认证只能这么些，直接REQUEST.AUTH会报错
-    user: User = getattr(request, "auth", None)
-    company = Company.objects.filter(manager__user=user).first()
-    if company:  # 如果是公司用户则只能查看自己公司名下的车
-        company_id = company.id
+    """车辆列表。公司用户只可以查看自己的车，再生资源平台和垃圾分类精细化管理平台可以查看全部"""
+
     queryset = Vehicle.objects.all().select_related("service_street", "company").order_by("id")
+    # 如果是公司用户则只能查看自己公司名下的车
+    if isinstance(request.auth, User) and (c := Company.objects.filter(manager__user=request.auth).first()):
+        company_id = c.id
     if service_street_code:
         queryset = queryset.filter(service_street__code=service_street_code)
     if plate_number:
