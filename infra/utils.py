@@ -5,6 +5,8 @@ from math import atan2, cos, degrees, radians, sin, sqrt
 from dateutil.tz import tz
 from ninja.errors import HttpError
 
+from recycle.models import RegionGrade
+
 
 def uuid1():
     return uuid.uuid1().hex
@@ -48,48 +50,38 @@ def to_time_range_tz(start_date: date, end_date: date, raise_exception: bool = T
 
 
 # 区域范围过滤
-def get_zone_range(coding):
-    coding = int(coding)
-    zone_start = coding
-    zone_end = coding
+def get_zone_range(code):
+    code = int(code)
+    zone_start = zone_end = code
 
-    p = coding
-
-    if p and p % 1000000000 == 0:
+    if code and code % 1000000000 == 0:
         # 市账号
         zone_end = zone_end + 1000000000
-        grade = 1
-    elif p and p % 1000000 == 0:
+        grade = RegionGrade.CITY
+    elif code and code % 1000000 == 0:
         # 区账号
         zone_end = zone_end + 1000000
-        grade = 2
-    elif p and p % 1000 == 0:
+        grade = RegionGrade.AREA
+    elif code and code % 1000 == 0:
         # 街道账号
         zone_end = zone_end + 1000
-        grade = 3
+        grade = RegionGrade.STREET
     else:
         zone_end = zone_start + 1
-        grade = 4
+        grade = RegionGrade.COMMUNITY
 
     return grade, zone_start, zone_end
 
 
 # 范围中心确认
 def center_geo(locations):
-    x = 0
-    y = 0
-    z = 0
+    x, y, z = 0, 0, 0
     lenth = len(locations)
     for lon, lat in locations:
-        lon = radians(float(lon))
-        lat = radians(float(lat))
-
+        lon, lat = radians(float(lon)), radians(float(lat))
         x += cos(lat) * cos(lon)
         y += cos(lat) * sin(lon)
         z += sin(lat)
-
-    x = float(x / lenth)
-    y = float(y / lenth)
-    z = float(z / lenth)
-
-    return (degrees(atan2(y, x)), degrees(atan2(z, sqrt(x * x + y * y))))
+    x, y, z = float(x / lenth), float(y / lenth), float(z / lenth)
+    lon_center, lat_center = degrees(atan2(y, x)), degrees(atan2(z, sqrt(x * x + y * y)))
+    return lon_center, lat_center
