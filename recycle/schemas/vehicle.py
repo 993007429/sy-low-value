@@ -18,5 +18,5 @@ class VehicleOut(VehicleIn):
     service_street_name: str = Field(None, title="服务街道名")
     company_name: str = Field(None, title="所属单位名")
     company_id: str
-    longitude: float = Field(default=116.466522, title="经度")
-    latitude: float = Field(default=39.893098, title="纬度")
+    longitude: float = Field(None, title="经度")
+    latitude: float = Field(None, title="纬度")

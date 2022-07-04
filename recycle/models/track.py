@@ -1,7 +1,10 @@
 from datetime import datetime
 
+from django.db import models
 from influxdb_client import Point
 from pydantic import BaseModel, Field
+
+from infra.db.models import BaseModel as BModel
 
 
 class Track(BaseModel):
@@ -13,7 +16,7 @@ class Track(BaseModel):
     longitude: float = Field(title="经度")
     latitude: float = Field(title="纬度")
     altitude: float = Field(title="海拔(米)")
-    speed: int = Field(title="速度")
+    speed: float = Field(title="速度")
     direction: int = Field(title="方向")
 
     def to_data_point(self) -> Point:
@@ -28,3 +31,14 @@ class Track(BaseModel):
             .field("speed", self.speed)
             .field("direction", self.direction)
         )
+
+
+class LatestTrack(BModel):
+    """车辆当前最新轨迹"""
+
+    plate_number = models.CharField("车牌号", max_length=32, null=True)
+    longitude = models.FloatField("经度")
+    latitude = models.FloatField("纬度")
+    altitude = models.FloatField("海拔(米)")
+    speed = models.FloatField("速度")
+    direction = models.IntegerField("方向")

@@ -6,6 +6,7 @@ from ninja.errors import HttpError
 from infra.authentication import AuthToken, LjflToken
 from infra.schemas import Pagination
 from recycle.models import Company, Region, RegionGrade, User, Vehicle
+from recycle.models.track import LatestTrack
 from recycle.schemas.vehicle import VehicleIn, VehicleOut
 
 router = Router(tags=["车辆台帐"])
@@ -60,9 +61,16 @@ def list_vehicle(
     paginator = Paginator(queryset, page_size)
     p = paginator.page(page)
 
-    # TODO 查询车辆当前最新位置
-    results = list(p.object_list)
-    return {"count": paginator.count, "results": results}
+    vehicles = list(p.object_list)
+    # 查询车辆最新轨迹
+    latest_tracks = LatestTrack.objects.filter(plate_number__in={v.plate_number for v in vehicles})
+    latest_track_dict = {track.plate_number: track for track in latest_tracks}
+    for vehicle in vehicles:
+        latest_track = latest_track_dict.get(vehicle.plate_number)
+        vehicle.longitude = latest_track.longitude if latest_track else None
+        vehicle.latitude = latest_track.latitude if latest_track else None
+
+    return {"count": paginator.count, "results": vehicles}
 
 
 @router.put("/{id_}", response=VehicleOut)
