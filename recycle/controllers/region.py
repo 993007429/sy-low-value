@@ -39,20 +39,13 @@ def list_communities(request, street_code: str):
 def scope_point(request, area_code: str = settings.REGION_CODE):
     """区域点位信息"""
 
-    _scope = "street"
     grade, zone_start, zone_end = get_zone_range(area_code)
-    scope_qs = RegionScope.objects.filter(code__gte=zone_start, code__lt=zone_end)
-
-    attr_dict = {
-        "street": ["code", "name"],
-    }
+    queryset = RegionScope.objects.filter(code__gte=zone_start, code__lt=zone_end)
 
     return_list = list()
-    _scope_attr = attr_dict.get(_scope)
-    for scope in scope_qs:
-        region_code = getattr(scope, _scope_attr[0])
-        region_name = getattr(scope, _scope_attr[1])
-
+    for scope in queryset:
+        region_code = scope.code
+        region_name = scope.name
         lon_center = scope.lon_center
         lat_center = scope.lat_center
         lon_lat = scope.lon_lat
@@ -63,8 +56,8 @@ def scope_point(request, area_code: str = settings.REGION_CODE):
             lon_la_list = lon_lat.split(";")
             for i in lon_la_list:
                 tem_list.append([float(i.split(",")[0]), float(i.split(",")[1])])
-
             lon_center, lat_center = center_geo(tem_list)
+
         return_list.append(
             RegionScopeOut(
                 region_code=region_code,
