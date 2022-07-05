@@ -7,7 +7,7 @@ class StandingBookManager(models.Manager):
     """台帐车辆入场记录"""
 
     def get_queryset(self):
-        return super().get_queryset().exclude(carrier__isnull=True)
+        return super().get_queryset().filter(carrier__isnull=False)
 
 
 class InboundRecord(BaseModel):
