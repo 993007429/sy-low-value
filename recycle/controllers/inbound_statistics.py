@@ -26,9 +26,9 @@ def calc_throughput(request, start_date: date, end_date: date, street_code: str 
     """进场可回收物处理量"""
 
     end_date = end_date + timedelta(days=1)
-    queryset = InboundRecord.objects.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
+    queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        queryset = queryset.filter(station__street__code=street_code)
+        queryset = queryset.filter(source_street__code=street_code)
     aggregations = queryset.aggregate(throughput=Sum("net_weight"))
     if not aggregations["throughput"]:  # sum没有值时会返回None
         aggregations["throughput"] = 0
@@ -40,9 +40,9 @@ def calc_throughput_by_station(request, start_date: date, end_date: date, street
     """按照中转站统计进场量"""
 
     end_date = end_date + timedelta(days=1)
-    queryset = InboundRecord.objects.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
+    queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        queryset = queryset.filter(station__street__code=street_code)
+        queryset = queryset.filter(source_street__code=street_code)
     aggregations = (
         queryset.annotate(station_name=F("station__name"))
         .values("station_id", "station_name")
@@ -64,9 +64,9 @@ def calc_throughput_trend_daily(
 
     end_date = day + timedelta(days=1)
     start_date = end_date - timedelta(days=7)
-    queryset = InboundRecord.objects.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
+    queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        queryset = queryset.filter(station__street__code=street_code)
+        queryset = queryset.filter(source_street__code=street_code)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     aggregations = (
@@ -103,9 +103,9 @@ def calc_throughput_trend_monthly(
 
     end_date = date(year, month, 1) + relativedelta(months=1)
     start_date = end_date - relativedelta(months=7)
-    queryset = InboundRecord.objects.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
+    queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        queryset = queryset.filter(station__street__code=street_code)
+        queryset = queryset.filter(source_street__code=street_code)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     aggregations = (
@@ -142,11 +142,11 @@ def cal_throughput_by_street(
 ):
     """各街道处理量"""
 
-    records = InboundRecord.objects.all()
+    records = InboundRecord.standing_book.all()
     if start_date and end_date:
         records = records.filter(net_weight_time__date__gte=start_date, net_weight_time__date__lte=end_date)
     aggregations = (
-        records.annotate(street_name=F("source_street_name"))
+        records.annotate(street_name=F("source_street__name"))
         .values("street_name")
         .annotate(throughput=Sum("net_weight"))
     )
@@ -165,11 +165,11 @@ def cal_throughput_by_street_and_station(
 ):
     """按中转站统计各街道处理量"""
 
-    records = InboundRecord.objects.all()
+    records = InboundRecord.standing_book.all()
     if start_date and end_date:
         records = records.filter(net_weight_time__date__gte=start_date, net_weight_time__date__lte=end_date)
     result = (
-        records.annotate(street_name=F("source_street_name"), station_name=F("station__name"))
+        records.annotate(street_name=F("source_street__name"), station_name=F("station__name"))
         .values("street_name", "station_name", "recyclables_type")
         .annotate(throughput=Sum("net_weight"))
     )
