@@ -27,7 +27,7 @@ def list_inbound_records(
 ):
     """中转站进场记录"""
 
-    queryset = InboundRecord.standing_book.prefetch_related("station").order_by("-id")
+    queryset = InboundRecord.standing_book.prefetch_related("station", "carrier", "source_street").order_by("-id")
     # 公司用户只能查看本公司记录
     if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
         queryset = queryset.filter(carrier=company)
@@ -43,7 +43,7 @@ def list_inbound_records(
     if carrier_credit_code:
         queryset = queryset.filter(carrier__uniform_social_credit_code=carrier_credit_code)
     if source_street:
-        queryset = queryset.filter(source_street_name__contains=source_street)
+        queryset = queryset.filter(source_street=source_street)
 
     paginator = Paginator(queryset, page.page_size)
     p = paginator.page(page.page)
@@ -62,7 +62,6 @@ def create_transfer_station_record(request, data: InboundRecordIn):
         vehicle = Vehicle.objects.select_related("company").filter(plate_number=data.plate_number).first()
     except TransferStation.DoesNotExist:
         raise HttpError(404, f"中转站 {data.station_uuid} 不存在")
-    carrier_name = vehicle.company.name if vehicle else data.carrier_name
     defaults = dict(
         station=station,
         uuid=data.uuid,
@@ -70,8 +69,7 @@ def create_transfer_station_record(request, data: InboundRecordIn):
         driver=data.driver,
         weigher=data.weigher,
         carrier=vehicle.company if vehicle else None,
-        carrier_name=carrier_name,
-        source_street_name=data.source_street_name,
+        source_street=vehicle.service_street if vehicle else None,
         tare_weight=data.tare_weight,
         gross_weight=data.gross_weight,
         net_weight=data.net_weight,
