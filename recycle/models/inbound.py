@@ -3,8 +3,15 @@ from django.db import models
 from infra.db.models import BaseModel
 
 
+class StandingBookManager(models.Manager):
+    """台帐车辆入场记录"""
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(carrier__isnull=True)
+
+
 class InboundRecord(BaseModel):
-    """中转站进场记录, 即把可回收物送到可回收物中转站"""
+    """中转站进场记录, 即把可回收物送到可回收物中转站。目前非系统台帐车辆也允许录入"""
 
     station = models.ForeignKey("TransferStation", on_delete=models.CASCADE)
     uuid = models.CharField(unique=True, max_length=36)
@@ -31,6 +38,8 @@ class InboundRecord(BaseModel):
     plate_number_photo_out = models.CharField("出场车牌识别照片", max_length=512, null=True, blank=True)
     vehicle_head_photo_out = models.CharField("出场车头照片", max_length=512, null=True, blank=True)
     vehicle_roof_photo_out = models.CharField("出场车顶照片", max_length=512, null=True, blank=True)
+
+    standing_book = StandingBookManager()
 
     @property
     def station_name(self):

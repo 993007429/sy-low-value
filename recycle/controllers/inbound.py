@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 
 from django.core.paginator import Paginator
-from django.db import IntegrityError
 from django.db.models import Sum
 from ninja import Query, Router
 from ninja.errors import HttpError
@@ -28,7 +27,7 @@ def list_inbound_records(
 ):
     """中转站进场记录"""
 
-    queryset = InboundRecord.objects.prefetch_related("station").order_by("-id")
+    queryset = InboundRecord.standing_book.prefetch_related("station").order_by("-id")
     # 公司用户只能查看本公司记录
     if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
         queryset = queryset.filter(carrier=company)
@@ -64,32 +63,28 @@ def create_transfer_station_record(request, data: InboundRecordIn):
     except TransferStation.DoesNotExist:
         raise HttpError(404, f"中转站 {data.station_uuid} 不存在")
     carrier_name = vehicle.company.name if vehicle else data.carrier_name
-    if InboundRecord.objects.filter(uuid=data.uuid).exists():
-        raise HttpError(409, "记录已存在")
-    try:
-        inbound = InboundRecord.objects.create(
-            station=station,
-            uuid=data.uuid,
-            plate_number=data.plate_number,
-            driver=data.driver,
-            weigher=data.weigher,
-            carrier=vehicle.company if vehicle else None,
-            carrier_name=carrier_name,
-            source_street_name=data.source_street_name,
-            tare_weight=data.tare_weight,
-            gross_weight=data.gross_weight,
-            net_weight=data.net_weight,
-            tare_weight_time=data.tare_weight_time,
-            gross_weight_time=data.gross_weight_time,
-            net_weight_time=data.net_weight_time,
-            recyclables_type=data.recyclables_type,
-            plate_number_photo_in=data.plate_number_photo_in,
-            vehicle_head_photo_in=data.vehicle_head_photo_in,
-            vehicle_roof_photo_in=data.vehicle_roof_photo_in,
-            plate_number_photo_out=data.plate_number_photo_out,
-            vehicle_head_photo_out=data.vehicle_head_photo_out,
-            vehicle_roof_photo_out=data.vehicle_roof_photo_out,
-        )
-    except IntegrityError:
-        raise HttpError(409, "记录已存在")
+    defaults = dict(
+        station=station,
+        uuid=data.uuid,
+        plate_number=data.plate_number,
+        driver=data.driver,
+        weigher=data.weigher,
+        carrier=vehicle.company if vehicle else None,
+        carrier_name=carrier_name,
+        source_street_name=data.source_street_name,
+        tare_weight=data.tare_weight,
+        gross_weight=data.gross_weight,
+        net_weight=data.net_weight,
+        tare_weight_time=data.tare_weight_time,
+        gross_weight_time=data.gross_weight_time,
+        net_weight_time=data.net_weight_time,
+        recyclables_type=data.recyclables_type,
+        plate_number_photo_in=data.plate_number_photo_in,
+        vehicle_head_photo_in=data.vehicle_head_photo_in,
+        vehicle_roof_photo_in=data.vehicle_roof_photo_in,
+        plate_number_photo_out=data.plate_number_photo_out,
+        vehicle_head_photo_out=data.vehicle_head_photo_out,
+        vehicle_roof_photo_out=data.vehicle_roof_photo_out,
+    )
+    inbound, _ = InboundRecord.objects.update_or_create(defaults=defaults, uuid=data.uuid)
     return inbound
