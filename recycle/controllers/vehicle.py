@@ -5,6 +5,7 @@ from ninja.errors import HttpError
 
 from infra.authentication import AuthToken, LjflToken
 from infra.schemas import Pagination
+from infra.util.coordtransform import wgs84_to_gcj02
 from recycle.models import Company, Region, RegionGrade, User, Vehicle
 from recycle.models.track import LatestTrack
 from recycle.schemas.vehicle import VehicleIn, VehicleOut
@@ -69,6 +70,8 @@ def list_vehicle(
         latest_track = latest_track_dict.get(vehicle.plate_number)
         vehicle.longitude = latest_track.longitude if latest_track else None
         vehicle.latitude = latest_track.latitude if latest_track else None
+        if vehicle.longitude and vehicle.latitude:
+            vehicle.longitude_gcj02, vehicle.latitude_gcj02 = wgs84_to_gcj02(vehicle.longitude, vehicle.latitude)
 
     return {"count": paginator.count, "results": vehicles}
 

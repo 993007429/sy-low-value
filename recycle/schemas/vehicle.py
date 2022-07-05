@@ -20,3 +20,5 @@ class VehicleOut(VehicleIn):
     company_id: str
     longitude: float = Field(None, title="经度")
     latitude: float = Field(None, title="纬度")
+    longitude_gcj02: float = Field(None, title="gcj02坐标系经度，适用高德地图")
+    latitude_gcj02: float = Field(None, title="gcj02坐标系纬度，适用高德地图")

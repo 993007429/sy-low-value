@@ -8,6 +8,7 @@ from ninja.errors import HttpError
 
 from infra import const
 from infra.db.influxdb import flux_tables_to_models, influxdb_client
+from infra.util.coordtransform import wgs84_to_gcj02
 from recycle.models.track import LatestTrack, Track
 from recycle.schemas.track import TrackIn, TrackOut
 
@@ -73,4 +74,8 @@ def list_tracks(
 
     tables = query_api.query(flux, params=flux_params)
     tracks = flux_tables_to_models(tables, TrackOut)
+    # 经纬度坐标系转换
+    for track in tracks:
+        if track.longitude and track.latitude:
+            track.longitude_gcj02, track.latitude_gcj02 = wgs84_to_gcj02(track.longitude, track.latitude)
     return tracks

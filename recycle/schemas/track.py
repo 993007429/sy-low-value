@@ -24,3 +24,5 @@ class TrackOut(Schema):
     tracked_at: datetime = Field(title="定位时间", alias="_time")
     longitude: float = Field(title="经度")
     latitude: float = Field(title="纬度")
+    longitude_gcj02: float = Field(None, title="gcj02坐标系经度，适用高德地图")
+    latitude_gcj02: float = Field(None, title="gcj02坐标系纬度，适用高德地图")
