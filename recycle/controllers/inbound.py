@@ -43,7 +43,7 @@ def list_inbound_records(
     if carrier_credit_code:
         queryset = queryset.filter(carrier__uniform_social_credit_code=carrier_credit_code)
     if source_street:
-        queryset = queryset.filter(source_street=source_street)
+        queryset = queryset.filter(source_street__code=source_street)
 
     paginator = Paginator(queryset, page.page_size)
     p = paginator.page(page.page)
