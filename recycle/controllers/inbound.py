@@ -35,7 +35,7 @@ def list_inbound_records(
         queryset = queryset.filter(net_weight_time__gte=start_date)
     if end_date:
         end_date = end_date + timedelta(days=1)
-        queryset = queryset.filter(net_weight_time__lte=end_date)
+        queryset = queryset.filter(net_weight_time__lt=end_date)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     if plate_number:
