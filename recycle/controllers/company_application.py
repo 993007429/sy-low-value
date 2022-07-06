@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.utils import timezone
 from ninja import Query, Router
 from ninja.errors import HttpError
@@ -27,7 +28,19 @@ def submit_company_application(request, data: CompanyApplicationIn):
         region = Region.objects.get(code=data.registration_region_code)
     except Region.DoesNotExist:
         raise HttpError(404, "注册区不存在")
-    application = CompanyApplication.objects.create(**data.dict(), registration_region_name=region.name)
+    with transaction.atomic():
+        # 检查公司是否注册、用户是否存在
+        company_exists = (
+            Company.objects.select_for_update()
+            .filter(Q(uniform_social_credit_code=data.uniform_social_credit_code) | Q(name=data.name))
+            .exists()
+        )
+        if company_exists:
+            raise HttpError(409, "公司已被注册")
+        user_exists = CompanyManager.objects.select_for_update().filter(email=data.manager_email).exists()
+        if user_exists:
+            raise HttpError(409, "邮箱已被注册")
+        application = CompanyApplication.objects.create(**data.dict(), registration_region_name=region.name)
     return application
 
 
@@ -74,7 +87,7 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
             try:
                 # 创建公司管理员帐号
                 user = User.objects.create_user(
-                    username=application.uniform_social_credit_code,
+                    username=application.manager_email,
                     first_name=application.name,
                     email=application.manager_email,
                     password=password,
@@ -89,6 +102,10 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
                     id_card_front=application.manager_id_card_front,
                     id_card_back=application.manager_id_card_back,
                 )
+            except IntegrityError:
+                raise HttpError(409, "用户已存在")
+
+            try:
                 # 创建公司
                 Company.objects.create(
                     name=application.name,
@@ -105,11 +122,11 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
                 )
             except IntegrityError:
                 raise HttpError(409, "公司已存在")
-    application.save()
+        application.save()
     # 发送邮件通知审核结果
     subject = "清运公司注册审核通知"
     if application.state == ApprovalState.APPROVED:
-        message = f"{application.name} 审核通过。\n帐号：{application.uniform_social_credit_code}\n密码：{password}"
+        message = f"{application.name} 审核通过。\n帐号：{user.username}\n密码：{password}"
     else:
         message = f"{application.name} 审核未通过，原因：{application.reason}"
     email_from = formataddr((settings.EMAIL_SENDER_NAME, settings.EMAIL_HOST_USER))

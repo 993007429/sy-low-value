@@ -15,7 +15,7 @@ class CompanyManager(BaseModel):
     name = models.CharField("姓名", max_length=32)
     id_card = models.CharField("身份证", max_length=32)
     phone = models.CharField("联系电话", max_length=32)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     address = models.CharField("居住地址", max_length=255)
     id_card_front = models.CharField("身份证正面", max_length=255)
     id_card_back = models.CharField("身份证背面", max_length=255)
