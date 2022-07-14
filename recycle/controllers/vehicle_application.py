@@ -6,11 +6,11 @@ from ninja.errors import HttpError
 
 from infra.decorators import permission_required
 from infra.schemas import Pagination
-from recycle.models import Company, Region, User, Vehicle, VehicleHistory
+from recycle.models import Company, PlatformManager, Region, Vehicle, VehicleHistory
 from recycle.models.region import RegionGrade
 from recycle.models.vehicle_application import ApprovalState, VehicleApplication
 from recycle.models.vehicle_history import VehicleChangeType
-from recycle.permissions import IsCompanyManager, IsPlatformManager
+from recycle.permissions import IsCompanyManager, IsStreetManager
 from recycle.schemas.vehicle import VehicleIn
 from recycle.schemas.vehicle_application import VehicleApplicationOperationIn, VehicleApplicationOut
 
@@ -28,8 +28,12 @@ def list_vehicle_application(
     """车辆审核列表"""
 
     queryset = VehicleApplication.objects.select_related("service_street", "company").order_by("id")
-    if isinstance(request.auth, User) and (c := Company.objects.filter(manager__user=request.auth).first()):
+    if c := Company.objects.filter(manager__user=request.auth).first():
+        # 公司用只能查看自己提的审批
         queryset = queryset.filter(company=c)
+    elif pm := PlatformManager.objects.filter(user=request.auth).first():
+        # 街道只能看到自己负责的审批
+        queryset = queryset.filter(service_street=pm.region)
     if service_street_code:
         queryset = queryset.filter(service_street__code=service_street_code)
     if plate_number:
@@ -68,14 +72,15 @@ def submit_vehicle_application(request, id_: int, data: VehicleIn):
 
 
 @router.patch("/{id_}", response={201: VehicleApplicationOut})
-@permission_required([IsPlatformManager])
+@permission_required([IsStreetManager])
 def process_vehicle_application(request, id_: int, data: VehicleApplicationOperationIn):
     """审批车辆变更"""
 
+    pm = PlatformManager.objects.select_related("region").get(user=request.auth)
     try:
         with transaction.atomic():
             application: VehicleApplication = VehicleApplication.objects.select_for_update().get(
-                pk=id_, state=ApprovalState.APPROVING
+                pk=id_, state=ApprovalState.APPROVING, service_street=pm.region
             )
             application.state = data.state
             application.processed_at = timezone.now()

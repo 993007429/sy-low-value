@@ -16,3 +16,10 @@ class IsCompanyManager(BasePermission):
 
     def has_permission(self, request: HttpRequest, view_func):
         return CompanyManager.objects.filter(user=request.auth).exists()
+
+
+class IsStreetManager(BasePermission):
+    """再生资源平台街道用户"""
+
+    def has_permission(self, request: HttpRequest, view_func):
+        return PlatformManager.objects.filter(user=request.auth, role=PlatformManager.STREET).exists()

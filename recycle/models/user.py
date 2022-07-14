@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -24,4 +25,18 @@ class CompanyManager(BaseModel):
 class PlatformManager(BaseModel):
     """再生资源平台管理员"""
 
+    AREA = "AREA"
+    STREET = "STREET"
+
+    ROLE_CHOICES = ((AREA, "区级管理员"), (STREET, "街道管理员"))
+
     user = models.OneToOneField("User", on_delete=models.CASCADE)
+    role = models.CharField("角色", max_length=16, choices=ROLE_CHOICES, default=AREA)
+    region = models.ForeignKey(
+        "Region",
+        on_delete=models.DO_NOTHING,
+        db_constraint=False,
+        to_field="code",
+        db_column="region_code",
+        default=settings.REGION_CODE,
+    )
