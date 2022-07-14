@@ -13,8 +13,8 @@ class EnergyType(models.TextChoices):
     NEW_ENERGY = "NEW_ENERGY", "新能源"
 
 
-class Vehicle(BaseModel):
-    """清运公司车辆"""
+class BaseVehicle(BaseModel):
+    """清运公司车辆基类，车辆和车辆草稿使用相同数据库结构"""
 
     company = models.ForeignKey("Company", on_delete=models.CASCADE)
     plate_number = models.CharField("车牌号", max_length=32, unique=True)
@@ -23,6 +23,9 @@ class Vehicle(BaseModel):
     energy_type = models.CharField("能源类型", max_length=32, choices=EnergyType.choices)
     load = models.FloatField("载重（t）")
     meet_spec = models.BooleanField("是否按规范喷涂")
+
+    class Meta:
+        abstract = True
 
     @property
     def service_street_code(self):
@@ -35,3 +38,9 @@ class Vehicle(BaseModel):
     @property
     def company_name(self):
         return self.company.name
+
+
+class Vehicle(BaseVehicle):
+    """清运公司车辆"""
+
+    pass

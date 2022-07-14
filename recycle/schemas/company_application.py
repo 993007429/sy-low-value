@@ -5,7 +5,7 @@ from typing import Literal
 from ninja import Schema
 from pydantic import AnyHttpUrl, BaseModel, EmailStr, Field, validator
 
-from recycle.models import CompanyForm
+from recycle.models.company import CompanyForm
 from recycle.models.company_application import ApprovalState
 
 

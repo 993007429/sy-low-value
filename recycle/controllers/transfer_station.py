@@ -9,7 +9,9 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 
 from infra.schemas import Pagination
-from recycle.models import Region, RegionGrade, RubbishVariety, StationNature, TransferStation
+from recycle.models import Region, TransferStation
+from recycle.models.region import RegionGrade
+from recycle.models.transfer_station import RubbishVariety, StationNature
 from recycle.schemas.transfer_station import TransferStationImportOut, TransferStationOut
 
 router = Router(tags=["可回收物中转站"])

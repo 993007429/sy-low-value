@@ -21,6 +21,9 @@ from .controllers.token import router as token_router
 from .controllers.track import router as track_router
 from .controllers.transfer_station import router as transfer_station_router
 from .controllers.vehicle import router as vehicle_router
+from .controllers.vehicle_application import router as vehicle_application_router
+from .controllers.vehicle_draft import router as vehicle_draft_router
+from .controllers.vehicle_history import router as vehicle_history_router
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +45,10 @@ api.add_router("/login", token_router)
 api.add_router("/region", region_router)
 api.add_router("/company", company_router)
 api.add_router("/company-application", company_application_router)
+api.add_router("/vehicle-drft", vehicle_draft_router)
+api.add_router("/vehicle-application", vehicle_application_router)
 api.add_router("/vehicle", vehicle_router)
+api.add_router("/vehicle-history", vehicle_history_router)
 api.add_router("/driver", driver_router)
 
 api.add_router("/transfer-station", transfer_station_router)

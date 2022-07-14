@@ -1,41 +1,21 @@
 from django.core.paginator import Paginator
-from django.db import IntegrityError
 from ninja import Query, Router
 from ninja.errors import HttpError
 
 from infra.authentication import AuthToken, LjflToken
+from infra.decorators import permission_required
 from infra.schemas import Pagination
 from infra.util.coordtransform import wgs84_to_gcj02
-from recycle.models import Company, Region, RegionGrade, User, Vehicle
+from recycle.models import Company, Region, User, Vehicle
+from recycle.models.region import RegionGrade
 from recycle.models.track import LatestTrack
+from recycle.models.vehicle_application import VehicleApplication
+from recycle.models.vehicle_history import VehicleChangeType
+from recycle.permissions import IsCompanyManager
 from recycle.schemas.vehicle import VehicleIn, VehicleOut
+from recycle.schemas.vehicle_application import VehicleApplicationOut
 
 router = Router(tags=["车辆台帐"])
-
-
-@router.post("", response={201: VehicleOut})
-def create_vehicle(request, data: VehicleIn):
-    """新增车辆"""
-
-    try:
-        street = Region.objects.get(code=data.service_street_code, grade=RegionGrade.STREET)
-    except Region.DoesNotExist:
-        raise HttpError(404, "街道不存在")
-    user: User = request.auth
-    company = Company.objects.get(uniform_social_credit_code=user.username)
-    try:
-        vehicle = Vehicle.objects.create(
-            company=company,
-            plate_number=data.plate_number,
-            service_street=street,
-            type=data.type,
-            energy_type=data.energy_type,
-            load=data.load,
-            meet_spec=data.meet_spec,
-        )
-    except IntegrityError:
-        raise HttpError(409, "车辆已存在")
-    return vehicle
 
 
 @router.get("", response=Pagination[VehicleOut], auth=(AuthToken(), LjflToken()))
@@ -76,31 +56,27 @@ def list_vehicle(
     return {"count": paginator.count, "results": vehicles}
 
 
-@router.put("/{id_}", response=VehicleOut)
+@router.post("/{id_}/submit", response=VehicleApplicationOut)
+@permission_required([IsCompanyManager])
 def update_vehicle(request, id_: int, data: VehicleIn):
+    """变更车辆信息，提交审批"""
+
     try:
+        company = Company.objects.get(manager__user=request.auth)
         street = Region.objects.get(code=data.service_street_code, grade=RegionGrade.STREET)
-        vehicle = Vehicle.objects.get(pk=id_)
+        vehicle = Vehicle.objects.get(company=company, pk=id_)
+        application = VehicleApplication.objects.create(
+            company=company,
+            plate_number=vehicle.plate_number,
+            service_street=street,
+            type=data.type,
+            energy_type=data.energy_type,
+            load=data.load,
+            meet_spec=data.meet_spec,
+            change_type=VehicleChangeType.CHANGE,
+        )
     except Region.DoesNotExist:
         raise HttpError(404, "街道不存在")
     except Vehicle.DoesNotExist:
         raise HttpError(404, "车辆不存在")
-    vehicle.plate_number = data.plate_number
-    vehicle.service_street = street
-    vehicle.type = data.type
-    vehicle.energy_type = data.energy_type
-    vehicle.load = data.load
-    vehicle.meet_spec = data.meet_spec
-    try:
-        vehicle.save()
-    except IntegrityError:
-        raise HttpError(409, "车辆已存在")
-    return vehicle
-
-
-@router.delete("/{id_}", response={204: None})
-def delete_vehicle(request, id_: int):
-    try:
-        Vehicle.objects.get(pk=id_).delete()
-    except Vehicle.DoesNotExist:
-        raise HttpError(404, "车辆不存在")
+    return application

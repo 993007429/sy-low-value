@@ -4,7 +4,8 @@ from django.conf import settings
 from ninja import Router
 
 from infra.utils import center_geo, get_zone_range
-from recycle.models import Region, RegionGrade
+from recycle.models import Region
+from recycle.models.region import RegionGrade
 from recycle.models.region_scope import RegionScope
 from recycle.schemas.region import RegionOut, RegionScopeOut
 

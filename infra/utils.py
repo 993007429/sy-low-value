@@ -5,7 +5,7 @@ from math import atan2, cos, degrees, radians, sin, sqrt
 from dateutil.tz import tz
 from ninja.errors import HttpError
 
-from recycle.models import RegionGrade
+from recycle.models.region import RegionGrade
 
 
 def uuid1():

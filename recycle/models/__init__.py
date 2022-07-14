@@ -1,10 +1,13 @@
-from .company import *  # noqa
-from .company_application import *  # noqa
-from .driver import *  # noqa
-from .inbound import *  # noqa
-from .outbound import *  # noqa
-from .region import *  # noqa
-from .region_scope import *  # noqa
-from .transfer_station import *  # noqa
-from .user import *  # noqa
-from .vehicle import *  # noqa
+from .company import Company  # noqa
+from .company_application import CompanyApplication  # noqa
+from .driver import Driver  # noqa
+from .inbound import InboundRecord  # noqa
+from .outbound import OutboundRecord  # noqa
+from .region import Region  # noqa
+from .region_scope import RegionScope  # noqa
+from .transfer_station import TransferStation  # noqa
+from .user import CompanyManager, PlatformManager, User  # noqa
+from .vehicle import Vehicle  # noqa
+from .vehicle_application import VehicleApplication  # noqa
+from .vehicle_draft import VehicleDraft  # noqa
+from .vehicle_history import VehicleHistory  # noqa

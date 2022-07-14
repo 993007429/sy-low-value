@@ -1,7 +1,7 @@
 from django.db import models
 
 from infra.db.models import BaseModel
-from recycle.models import CompanyForm
+from recycle.models.company import CompanyForm
 
 
 class ApprovalState(models.TextChoices):
