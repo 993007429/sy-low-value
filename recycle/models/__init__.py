@@ -2,6 +2,7 @@ from .company import Company  # noqa
 from .company_application import CompanyApplication  # noqa
 from .driver import Driver  # noqa
 from .inbound import InboundRecord  # noqa
+from .monitor import *  # noqa
 from .outbound import OutboundRecord  # noqa
 from .region import Region  # noqa
 from .region_scope import RegionScope  # noqa
