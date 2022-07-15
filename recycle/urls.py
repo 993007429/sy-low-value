@@ -14,6 +14,7 @@ from .controllers.company_application import router as company_application_route
 from .controllers.driver import router as driver_router
 from .controllers.inbound import router as inbound_router
 from .controllers.inbound_statistics import router as inbound_statistics_router
+from .controllers.monitor import router as monitor_router
 from .controllers.outbound import router as outbound_router
 from .controllers.region import router as region_router
 from .controllers.statistics import router as statistics_router
@@ -57,6 +58,7 @@ api.add_router("/outbound", outbound_router)
 api.add_router("/inbound-statistics", inbound_statistics_router)
 api.add_router("/statistics", statistics_router)
 api.add_router("/track", track_router)
+api.add_router("/monitor", monitor_router)
 
 urlpatterns = [
     path("", api.urls),
