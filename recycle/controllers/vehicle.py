@@ -6,7 +6,7 @@ from infra.authentication import AuthToken, LjflToken
 from infra.decorators import permission_required
 from infra.schemas import Pagination
 from infra.util.coordtransform import wgs84_to_gcj02
-from recycle.models import Company, Region, User, Vehicle
+from recycle.models import Company, Region, User, Vehicle, PlatformManager
 from recycle.models.region import RegionGrade
 from recycle.models.track import LatestTrack
 from recycle.models.vehicle_application import VehicleApplication
@@ -33,6 +33,9 @@ def list_vehicle(
     # 如果是公司用户则只能查看自己公司名下的车
     if isinstance(request.auth, User) and (c := Company.objects.filter(manager__user=request.auth).first()):
         company_id = c.id
+    # 街道只能查看自己的车
+    if isinstance(request.auth, User) and (pm := PlatformManager.objects.filter(user=request.auth, role=PlatformManager.STREET).first()):
+        service_street_code = pm.region_id
     if service_street_code:
         queryset = queryset.filter(service_street__code=service_street_code)
     if plate_number:
