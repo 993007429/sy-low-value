@@ -22,6 +22,7 @@ def list_vehicle_application(
     request,
     service_street_code: str = Query(None, title="服务街道编码"),
     plate_number: str = Query(None, title="车牌号"),
+    state: ApprovalState = Query(None, title="审核状态"),
     page: int = Query(default=1, gt=0),
     page_size: int = Query(default=20, gt=0, le=10000),
 ):
@@ -38,6 +39,8 @@ def list_vehicle_application(
         queryset = queryset.filter(service_street__code=service_street_code)
     if plate_number:
         queryset = queryset.filter(plate_number=plate_number)
+    if state:
+        queryset = queryset.filter(state=state)
     paginator = Paginator(queryset, page_size)
     p = paginator.page(page)
     return {"count": paginator.count, "results": list(p.object_list)}
