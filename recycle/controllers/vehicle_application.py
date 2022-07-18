@@ -32,7 +32,7 @@ def list_vehicle_application(
     if c := Company.objects.filter(manager__user=request.auth).first():
         # 公司用只能查看自己提的审批
         queryset = queryset.filter(company=c)
-    elif pm := PlatformManager.objects.filter(user=request.auth).first():
+    elif pm := PlatformManager.objects.filter(user=request.auth, role=PlatformManager.STREET).first():
         # 街道只能看到自己负责的审批
         queryset = queryset.filter(service_street=pm.region)
     if service_street_code:
