@@ -14,10 +14,13 @@ def get_platform_token(request, login: Login):
     """再生资源平台登录"""
 
     user: User = authenticate(**login.dict())
-    if not (user and PlatformManager.objects.filter(user=user).exists()):
+    platform_user = PlatformManager.objects.filter(user=user).first()
+    if not (user and platform_user):
         raise HttpError(404, "密码错误或帐号不存在")
     token = get_tokens_for_user(user)
-    return PlatformToken(username=user.username, name=user.first_name, token=token, user_id=user.pk)
+    return PlatformToken(
+        username=user.username, name=user.first_name, token=token, user_id=user.pk, role=platform_user.role
+    )
 
 
 @router.post("company", auth=None, response={201: CompanyToken})

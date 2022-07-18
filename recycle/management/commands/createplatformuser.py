@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.management import BaseCommand
 from django.db import transaction
 
@@ -19,21 +20,43 @@ class Command(BaseCommand):
             "--password",
             help="密码",
         )
+        parser.add_argument(
+            "-r",
+            "--role",
+            help="角色。默认区级",
+        )
 
-    def handle(self, username: str, password: str, *args, **options):
+        parser.add_argument(
+            "-c",
+            "--code",
+            help="区域编码",
+        )
+
+    def handle(
+        self,
+        username: str,
+        password: str,
+        role: str = PlatformManager.AREA,
+        region_code: str = settings.REGION_CODE,
+        *args,
+        **options
+    ):
         if not (username and password):
             self.stdout.write("请提供用户名和密码")
             return
-        create_platform_user(username, password)
+        if not role:
+            role = PlatformManager.AREA
+        if role not in (PlatformManager.AREA, PlatformManager.STREET):
+            self.stdout.write("无效的角色，可选AREA STREET")
+            return
+        create_platform_user(username, password, role, region_code)
         self.stdout.write("OK!")
 
 
-def create_platform_user(username: str, password: str):
+def create_platform_user(username: str, password: str, role: str, region_code: str):
     with transaction.atomic():
         user = User.objects.create_user(
             username=username,
             password=password,
         )
-        PlatformManager.objects.create(
-            user=user,
-        )
+        PlatformManager.objects.create(user=user, role=role, region_id=region_code)

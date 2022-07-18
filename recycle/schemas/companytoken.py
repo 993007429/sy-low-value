@@ -20,3 +20,4 @@ class PlatformToken(Schema):
     name: str
     token: str
     user_id: int
+    role: str
