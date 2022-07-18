@@ -27,7 +27,7 @@ def create_vehicle_draft(request, data: VehicleIn):
     except Region.DoesNotExist:
         raise HttpError(404, "街道不存在")
     user: User = request.auth
-    company = Company.objects.get(uniform_social_credit_code=user.username)
+    company = Company.objects.filter(manager__user=user).first()
     draft = VehicleDraft.objects.create(
         company=company,
         plate_number=data.plate_number,
