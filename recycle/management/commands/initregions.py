@@ -2,7 +2,8 @@ import csv
 
 from django.core.management import BaseCommand
 
-from recycle.models import Region, RegionGrade
+from recycle.models import Region
+from recycle.models.region import RegionGrade
 
 
 class Command(BaseCommand):
