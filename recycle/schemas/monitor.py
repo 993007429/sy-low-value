@@ -5,6 +5,8 @@ from pydantic import Field
 class MonitorOut(Schema):
     serial: str = Field(..., title="国标编号", max_length=64)
     code: str = Field(..., title="视频通道编号", max_length=64)
+    site_type: str = Field(..., title="位置类型")
+    site_name: str = Field(..., title="位置名称")
     station_name: str = Field(..., title="中转站名称", alias="station.name")
     station_street_name: str = Field(..., title="中转站所属街道名称", alias="station.street.name")
     station_community_name: str = Field(..., title="中转站所属社区名称", alias="station.community.name")
