@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, validator
 
 from recycle.models.vehicle import EnergyType, VehicleType
 from recycle.models.vehicle_application import ApprovalState
+from recycle.models.vehicle_history import VehicleChangeType
 
 
 class VehicleApplicationOperationIn(BaseModel):
@@ -31,6 +32,7 @@ class VehicleApplicationOut(Schema):
     company_name: str = Field(None, title="所属单位名")
     company_id: str
 
+    change_type: VehicleChangeType = Field(..., title="变更类型")
     state: ApprovalState = Field(None, title="审核状态")
     reason: str = Field(None, title="审核拒绝原因")
     applied_at: datetime = Field(None, title="申请时间", alias="created_at")

@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.core.paginator import Paginator
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -23,6 +25,8 @@ def list_vehicle_application(
     service_street_code: str = Query(None, title="服务街道编码"),
     plate_number: str = Query(None, title="车牌号"),
     state: ApprovalState = Query(None, title="审核状态"),
+    start_date: date = Query(None, title="提交开始时间"),
+    end_date: date = Query(None, title="提交结束时间"),
     page: int = Query(default=1, gt=0),
     page_size: int = Query(default=20, gt=0, le=10000),
 ):
@@ -41,6 +45,10 @@ def list_vehicle_application(
         queryset = queryset.filter(plate_number=plate_number)
     if state:
         queryset = queryset.filter(state=state)
+    if start_date:
+        queryset = queryset.filter(created_at__date__gte=start_date)
+    if end_date:
+        queryset = queryset.filter(created_at__date__lte=end_date)
     paginator = Paginator(queryset, page_size)
     p = paginator.page(page)
     return {"count": paginator.count, "results": list(p.object_list)}
