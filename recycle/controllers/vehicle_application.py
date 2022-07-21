@@ -32,7 +32,7 @@ def list_vehicle_application(
 ):
     """车辆审核列表"""
 
-    queryset = VehicleApplication.objects.select_related("service_street", "company").order_by("id")
+    queryset = VehicleApplication.objects.select_related("service_street", "company").order_by("-id")
     if c := Company.objects.filter(manager__user=request.auth).first():
         # 公司用只能查看自己提的审批
         queryset = queryset.filter(company=c)
