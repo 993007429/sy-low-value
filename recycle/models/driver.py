@@ -10,9 +10,9 @@ class Driver(BaseModel):
     name = models.CharField("姓名", max_length=32)
     id_card = models.CharField("身份证", max_length=32)
     phone = models.CharField("联系电话", max_length=32)
-    working_years = models.PositiveSmallIntegerField("从业年限")
-    joined_at = models.DateField("入职日期")
-    license_photo = models.CharField("驾驶证照片", max_length=255)
+    license_photo = models.TextField("驾驶证照片")
+    id_card_front = models.TextField("身份证正面", null=True)
+    id_card_back = models.TextField("身份证反面", null=True)
 
     class Meta:
         unique_together = (

@@ -1,5 +1,3 @@
-from datetime import date
-
 from ninja import ModelSchema, Schema
 from pydantic import AnyHttpUrl, Field
 
@@ -10,9 +8,9 @@ class DriverIn(Schema):
     name: str = Field(..., title="姓名", max_length=32)
     id_card: str = Field(..., title="身份证", max_length=32)
     phone: str = Field(..., title="联系电话", max_length=32)
-    working_years: int = Field(..., title="从业年限", ge=0, le=100)
-    joined_at: date = Field(..., title="入职日期")
     license_photo: AnyHttpUrl = Field(..., title="驾驶证照片")
+    id_card_front: AnyHttpUrl = Field(..., title="身份证正面照片")
+    id_card_back: AnyHttpUrl = Field(..., title="身份证反面照片")
 
 
 class DriverOut(ModelSchema):
