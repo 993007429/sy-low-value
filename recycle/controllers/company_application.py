@@ -20,6 +20,8 @@ from recycle.schemas.company_application import (
 
 router = Router(tags=["收运公司注册、审核"])
 
+MSG_COMPANY_DUPLICATED = "公司名或统一社会信用代码已被注册"
+
 
 @router.post("", response={201: CompanyApplicationOut}, auth=None)
 def submit_company_application(request, data: CompanyApplicationIn):
@@ -36,7 +38,7 @@ def submit_company_application(request, data: CompanyApplicationIn):
             .exists()
         )
         if company_exists:
-            raise HttpError(409, "公司已被注册")
+            raise HttpError(409, MSG_COMPANY_DUPLICATED)
         user_exists = CompanyManager.objects.select_for_update().filter(email=data.manager_email).exists()
         if user_exists:
             raise HttpError(409, "邮箱已被注册")
@@ -121,7 +123,7 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
                     manager=manager,
                 )
             except IntegrityError:
-                raise HttpError(409, "公司已存在")
+                raise HttpError(409, MSG_COMPANY_DUPLICATED)
         application.save()
     # 发送邮件通知审核结果
     subject = "清运公司注册审核通知"
