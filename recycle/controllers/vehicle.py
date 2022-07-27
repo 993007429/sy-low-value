@@ -2,7 +2,7 @@ from django.core.paginator import Paginator
 from ninja import Query, Router
 from ninja.errors import HttpError
 
-from infra.authentication import AuthToken, LjflToken
+from infra.authentication import AgentAuth, AuthToken, LjflToken
 from infra.decorators import permission_required
 from infra.schemas import Pagination
 from infra.util.coordtransform import wgs84_to_gcj02
@@ -18,7 +18,7 @@ from recycle.schemas.vehicle_application import VehicleApplicationOut
 router = Router(tags=["车辆台帐"])
 
 
-@router.get("", response=Pagination[VehicleOut], auth=(AuthToken(), LjflToken()))
+@router.get("", response=Pagination[VehicleOut], auth=(AuthToken(), LjflToken(), AgentAuth()))
 def list_vehicle(
     request,
     service_street_code: str = Query(None, title="服务街道编码"),

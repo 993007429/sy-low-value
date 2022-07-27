@@ -5,11 +5,15 @@ import jwt
 import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.signing import Signer
 from jwt import DecodeError
 from ninja.errors import HttpError
 from ninja.security import HttpBearer
 from pydantic import BaseModel, Field
+
+from recycle.models.agent import Agent
 
 User = get_user_model()
 logger = logging.getLogger("django")
@@ -65,3 +69,19 @@ class LjflToken(HttpBearer):
         except Exception:
             logger.exception(f"访问认证服务失败. {url}")
             raise HttpError(503, "认证服务不可用")
+
+
+class AgentAuth(HttpBearer):
+    """认证受信任的三方系统"""
+
+    def authenticate(self, request, token):
+        signer = Signer()
+        try:
+            payload = signer.unsign_object(token)
+        except signing.BadSignature:
+            raise HttpError(status_code=401, message="invalid signature")
+        try:
+            agent = Agent.objects.get(agent_id=payload["agent"], secret=token)
+        except ObjectDoesNotExist:
+            raise HttpError(status_code=401, message="invalid signature")
+        return agent
