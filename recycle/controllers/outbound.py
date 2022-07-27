@@ -6,6 +6,7 @@ from django.db.models import Sum
 from ninja import Query, Router
 from ninja.errors import HttpError
 
+from infra.authentication import AgentAuth
 from infra.schemas import Page
 from recycle.models import TransferStation
 from recycle.models.outbound import OutboundRecord
@@ -50,7 +51,7 @@ def list_outbound_records(
     return OutboundRecordPaginationOut(count=paginator.count, total_weight=total_weight, results=list(p.object_list))
 
 
-@router.post("", response={201: None}, auth=None)
+@router.post("", response={201: None}, auth=[AgentAuth()])
 def create_transfer_station_record(request, data: OutboundRecordIn):
     """添加出场记录"""
 

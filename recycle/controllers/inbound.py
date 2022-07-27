@@ -5,7 +5,7 @@ from django.db.models import Sum
 from ninja import Query, Router
 from ninja.errors import HttpError
 
-from infra.authentication import AuthToken, LjflToken
+from infra.authentication import AgentAuth, AuthToken, LjflToken
 from infra.schemas import Page
 from recycle.models import Company, TransferStation, User, Vehicle
 from recycle.models.inbound import InboundRecord
@@ -53,7 +53,7 @@ def list_inbound_records(
     return InboundRecordPaginationOut(count=paginator.count, total_weight=total_weight, results=list(p.object_list))
 
 
-@router.post("", response={201: None}, auth=None)
+@router.post("", response={201: None}, auth=[AgentAuth()])
 def create_transfer_station_record(request, data: InboundRecordIn):
     """添加进场记录"""
 
