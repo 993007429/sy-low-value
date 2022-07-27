@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
         parser.add_argument(
             "-c",
-            "--code",
+            "--region_code",
             help="区域编码",
         )
 
