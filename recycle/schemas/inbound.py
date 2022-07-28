@@ -7,7 +7,7 @@ from pydantic import AnyHttpUrl, Field
 
 class InboundRecordBase(Schema):
     plate_number: str = Field(title="车牌号", max_length=32)
-    uuid: str = Field(title="记录唯一id", max_length=36)
+    uuid: str = Field(title="记录唯一id", max_length=36, min_length=32)
 
     driver: str = Field(default=None, title="司机姓名", max_length=32)
     weigher: str = Field(default=None, title="司磅员姓名", max_length=32)
@@ -24,9 +24,9 @@ class InboundRecordBase(Schema):
     plate_number_photo_in: AnyHttpUrl = Field(default=None, title="车牌识别照片")
     vehicle_head_photo_in: AnyHttpUrl = Field(default=None, title="车头照片")
     vehicle_roof_photo_in: AnyHttpUrl = Field(default=None, title="车顶照片")
-    plate_number_photo_out: AnyHttpUrl = Field(default=None, title="车牌识别照片")
-    vehicle_head_photo_out: AnyHttpUrl = Field(default=None, title="车头照片")
-    vehicle_roof_photo_out: AnyHttpUrl = Field(default=None, title="车顶照片")
+    plate_number_photo_out: AnyHttpUrl = Field(default=None, title="出场车牌识别照片")
+    vehicle_head_photo_out: AnyHttpUrl = Field(default=None, title="出场车头照片")
+    vehicle_roof_photo_out: AnyHttpUrl = Field(default=None, title="出场车顶照片")
 
 
 class InboundRecordIn(InboundRecordBase):
