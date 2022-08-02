@@ -26,3 +26,4 @@ class TrackOut(Schema):
     latitude: float = Field(title="纬度")
     longitude_gcj02: float = Field(None, title="gcj02坐标系经度，适用高德地图")
     latitude_gcj02: float = Field(None, title="gcj02坐标系纬度，适用高德地图")
+    speed: float = Field(None, title="速度")
