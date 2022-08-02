@@ -1,5 +1,5 @@
 from ninja import Schema
-from pydantic import Field
+from pydantic import AnyHttpUrl, Field
 
 from recycle.models.vehicle import EnergyType, VehicleType
 
@@ -11,10 +11,12 @@ class VehicleIn(Schema):
     energy_type: EnergyType = Field(..., title="能源类型")
     load: float = Field(..., title="载重量", gt=0)
     meet_spec: bool = Field(..., title="是否按规范喷涂")
+    vehicle_licence: AnyHttpUrl = Field(..., title="行驶证")
 
 
 class VehicleOut(VehicleIn):
     id: int
+    vehicle_licence: str = Field(None, title="行驶证")
     service_street_name: str = Field(None, title="服务街道名")
     company_name: str = Field(None, title="所属单位名")
     company_id: str

@@ -36,6 +36,7 @@ def create_vehicle_draft(request, data: VehicleIn):
         energy_type=data.energy_type,
         load=data.load,
         meet_spec=data.meet_spec,
+        vehicle_licence=data.vehicle_licence,
     )
     return draft
 

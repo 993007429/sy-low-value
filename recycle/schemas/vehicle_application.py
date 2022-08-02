@@ -31,6 +31,7 @@ class VehicleApplicationOut(Schema):
     service_street_name: str = Field(None, title="服务街道名")
     company_name: str = Field(None, title="所属单位名")
     company_id: str
+    vehicle_licence: str = Field(None, title="行驶证")
 
     change_type: VehicleChangeType = Field(..., title="变更类型")
     state: ApprovalState = Field(None, title="审核状态")

@@ -18,5 +18,6 @@ class VehicleHistoryOut(Schema):
     meet_spec: bool = Field(..., title="是否按规范喷涂")
     company_name: str = Field(None, title="所属单位名")
     company_id: str
+    vehicle_licence: str = Field(None, title="行驶证")
     change_type: VehicleChangeType = Field(None, title="变更类型")
     created_at: datetime = Field(None, title="变更时间")

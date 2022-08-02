@@ -23,6 +23,7 @@ class BaseVehicle(BaseModel):
     energy_type = models.CharField("能源类型", max_length=32, choices=EnergyType.choices)
     load = models.FloatField("载重（t）")
     meet_spec = models.BooleanField("是否按规范喷涂")
+    vehicle_licence = models.CharField("行驶证", max_length=2084, null=True)
 
     class Meta:
         abstract = True

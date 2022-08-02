@@ -72,6 +72,7 @@ def submit_vehicle_application(request, id_: int, data: VehicleIn):
                 energy_type=data.energy_type,
                 load=data.load,
                 meet_spec=data.meet_spec,
+                vehicle_licence=data.vehicle_licence,
                 change_type=rejected.change_type,
             )
             rejected.delete()  # 如果以后改为保留被拒绝的记录，删掉此行即可
