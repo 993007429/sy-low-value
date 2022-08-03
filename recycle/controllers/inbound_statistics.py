@@ -8,7 +8,7 @@ from django.db.models.functions import TruncMonth
 from ninja import Query, Router
 
 from infra.schemas import Page, Pagination
-from recycle.models import InboundRecord
+from recycle.models import InboundRecord, Vehicle
 from recycle.schemas.inbound_statistics import (
     ThroughputByStationOut,
     ThroughputByStreetAndStationOut,
@@ -23,16 +23,44 @@ router = Router(tags=["进场统计"])
 
 @router.get("/throughput", response=ThroughputOut)
 def calc_throughput(request, start_date: date, end_date: date, street_code: str = None):
-    """进场可回收物处理量"""
+    """进场可回收物处理量、运行车辆数、运行车次数"""
 
     end_date = end_date + timedelta(days=1)
+    previous_date = start_date - timedelta(days=1)
     queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
+    # 起始日期前一天中转站进场记录
+    queryset_previous = InboundRecord.standing_book.filter(
+        net_weight_time__gte=previous_date, net_weight_time__lt=start_date
+    )
+
     if street_code:
-        queryset = queryset.filter(source_street__code=street_code)
+        # 按服务街道筛选车辆
+        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
+        queryset = queryset.filter(plate_number__in=plate_numbers)
+        queryset_previous = queryset_previous.filter(plate_number__in=plate_numbers)
+
     aggregations = queryset.aggregate(throughput=Sum("net_weight"))
+    aggregations_previous = queryset_previous.aggregate(throughput=Sum("net_weight"))
     if not aggregations["throughput"]:  # sum没有值时会返回None
         aggregations["throughput"] = 0
-    return aggregations
+    if not aggregations_previous["throughput"]:
+        aggregations_previous["throughput"] = 0
+
+    throughput = aggregations["throughput"]
+    throughput_previous = aggregations_previous["throughput"]
+    unique_vehicles = queryset.distinct("plate_number").count()
+    unique_vehicles_previous = queryset_previous.distinct("plate_number").count()
+    inbound_records = queryset.count()
+    inbound_records_previous = queryset_previous.count()
+
+    return ThroughputOut(
+        throughput=throughput,
+        throughput_previous=throughput_previous,
+        unique_vehicles=unique_vehicles,
+        unique_vehicles_previous=unique_vehicles_previous,
+        inbound_records=inbound_records,
+        inbound_records_previous=inbound_records_previous,
+    )
 
 
 @router.get("/throughput-by-station", response=List[ThroughputByStationOut])
