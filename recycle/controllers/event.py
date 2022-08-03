@@ -10,7 +10,7 @@ from recycle.schemas.event import EventOut
 router = Router(tags=["实时预警"])
 
 
-@router.get("", response=List[EventOut], auth=None)
+@router.get("", response=List[EventOut])
 @paginate
 def list_events(
     request,
