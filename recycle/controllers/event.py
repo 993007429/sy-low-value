@@ -10,8 +10,8 @@ from recycle.schemas.event import EventOut
 router = Router(tags=["实时预警"])
 
 
-@router.get("", response=List[EventOut])
-@paginate
+@router.get("", response=List[EventOut], auth=None)
+@paginate(page_size=50)
 def list_events(
     request,
     plate_number: str = Query(None, description="车牌号"),
