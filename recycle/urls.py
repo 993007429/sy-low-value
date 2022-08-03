@@ -12,6 +12,7 @@ from infra.renderers import JSONRenderer
 from .controllers.company import router as company_router
 from .controllers.company_application import router as company_application_router
 from .controllers.driver import router as driver_router
+from .controllers.event import router as event_router
 from .controllers.inbound import router as inbound_router
 from .controllers.inbound_statistics import router as inbound_statistics_router
 from .controllers.monitor import router as monitor_router
@@ -59,6 +60,7 @@ api.add_router("/inbound-statistics", inbound_statistics_router)
 api.add_router("/statistics", statistics_router)
 api.add_router("/track", track_router)
 api.add_router("/monitor", monitor_router)
+api.add_router("/event", event_router)
 
 urlpatterns = [
     path("", api.urls),

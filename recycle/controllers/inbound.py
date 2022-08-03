@@ -7,7 +7,8 @@ from ninja.errors import HttpError
 
 from infra.authentication import AgentAuth, AuthToken, LjflToken
 from infra.schemas import Page
-from recycle.models import Company, TransferStation, User, Vehicle
+from recycle.models import Company, Event, TransferStation, User, Vehicle
+from recycle.models.event import EventType
 from recycle.models.inbound import InboundRecord
 from recycle.schemas.inbound import InboundRecordIn, InboundRecordPaginationOut
 
@@ -84,5 +85,13 @@ def create_transfer_station_record(request, data: InboundRecordIn):
         vehicle_head_photo_out=data.vehicle_head_photo_out,
         vehicle_roof_photo_out=data.vehicle_roof_photo_out,
     )
-    inbound, _ = InboundRecord.objects.update_or_create(defaults=defaults, uuid=data.uuid)
+    inbound, created = InboundRecord.objects.update_or_create(defaults=defaults, uuid=data.uuid)
+    # 检查是否超重 FIXME: 可以将数据发送到kafka, 将进站数据存储和异常检测解耦
+    if data.net_weight > vehicle.load * 1000 and created:
+        Event.objects.create(
+            plate_number=data.plate_number,
+            started_at=data.net_weight_time,
+            ended_at=data.net_weight_time,
+            type=EventType.OVERLOAD,
+        )
     return inbound
