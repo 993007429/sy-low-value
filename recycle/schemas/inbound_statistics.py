@@ -6,6 +6,11 @@ from pydantic import Field
 
 class ThroughputOut(Schema):
     throughput: float = Field(0, title="处理量")
+    throughput_previous: float = Field(0, title="昨日处理量")
+    unique_vehicles: int = Field(0, title="运行车辆数")
+    unique_vehicles_previous: float = Field(0, title="昨日运行车辆数")
+    inbound_records: int = Field(0, title="运行车次数")
+    inbound_records_previous: float = Field(0, title="昨日运行车次数")
 
 
 class ThroughputByStationOut(Schema):
