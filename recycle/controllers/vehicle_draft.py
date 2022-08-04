@@ -116,6 +116,7 @@ def submit_vehicle_application(request, id_: int):
             energy_type=draft.energy_type,
             load=draft.load,
             meet_spec=draft.meet_spec,
+            vehicle_licence=draft.vehicle_licence,
             change_type=VehicleChangeType.NEW,
         )
         draft.delete()

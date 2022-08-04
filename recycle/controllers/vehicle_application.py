@@ -109,6 +109,7 @@ def process_vehicle_application(request, id_: int, data: VehicleApplicationOpera
                         energy_type=application.energy_type,
                         load=application.load,
                         meet_spec=application.meet_spec,
+                        vehicle_licence=application.vehicle_licence,
                     )
                 elif application.change_type == VehicleChangeType.CHANGE:
                     vehicle = Vehicle.objects.get(plate_number=application.plate_number)
@@ -117,6 +118,7 @@ def process_vehicle_application(request, id_: int, data: VehicleApplicationOpera
                     vehicle.energy_type = application.energy_type
                     vehicle.load = application.load
                     vehicle.meet_spec = application.meet_spec
+                    vehicle.vehicle_licence = application.vehicle_licence
                     vehicle.save()
                 else:
                     pass
@@ -129,6 +131,7 @@ def process_vehicle_application(request, id_: int, data: VehicleApplicationOpera
                     energy_type=application.energy_type,
                     load=application.load,
                     meet_spec=application.meet_spec,
+                    vehicle_licence=application.vehicle_licence,
                     change_type=application.change_type,
                 )
             application.save()
