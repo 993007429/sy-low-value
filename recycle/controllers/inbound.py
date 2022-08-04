@@ -87,7 +87,7 @@ def create_transfer_station_record(request, data: InboundRecordIn):
     )
     inbound, created = InboundRecord.objects.update_or_create(defaults=defaults, uuid=data.uuid)
     # 检查是否超重 FIXME: 可以将数据发送到kafka, 将进站数据存储和异常检测解耦
-    if data.net_weight > vehicle.load * 1000 and created:
+    if vehicle and data.net_weight > vehicle.load * 1000 and created:
         Event.objects.create(
             plate_number=data.plate_number,
             started_at=data.net_weight_time,
