@@ -80,6 +80,7 @@ def update_vehicle_draft(request, id_: int, data: VehicleIn):
     draft.energy_type = data.energy_type
     draft.load = data.load
     draft.meet_spec = data.meet_spec
+    draft.vehicle_licence = data.vehicle_licence
     draft.save()
     return draft
 
