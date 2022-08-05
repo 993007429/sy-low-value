@@ -39,6 +39,7 @@ class OutboundRecordIn(OutboundRecordBase):
 
 class OutboundRecordOut(OutboundRecordBase):
     station_id: str = Field(title="中转站id")
+    station_name: str = Field(title="中转站名称")
     id: str
 
 
