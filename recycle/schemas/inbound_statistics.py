@@ -26,6 +26,12 @@ class ThroughputTrendDailyOut(Schema):
     day: date
 
 
+class ThroughputCountTrendDailyOut(Schema):
+    throughput: float = Field(0, title="处理量")
+    count: int = Field(title="进场车次")
+    day: date
+
+
 class ThroughputTrendMonthlyOut(Schema):
     throughput: float = Field(0, title="处理量")
     month: date
