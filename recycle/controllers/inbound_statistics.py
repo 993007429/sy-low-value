@@ -94,13 +94,15 @@ def calc_throughput_trend_daily(
     start_date = end_date - timedelta(days=7)
     queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        queryset = queryset.filter(source_street__code=street_code)
+        # 按服务街道筛选车辆
+        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
+        queryset = queryset.filter(plate_number__in=plate_numbers)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     aggregations = (
         queryset.annotate(day=F("net_weight_time__date"))
         .values("day")
-        .annotate(throughput=Sum("net_weight"))
+        .annotate(throughput=Sum("net_weight"), count=Count("*"))
         .order_by("day")
     )
 
@@ -109,6 +111,8 @@ def calc_throughput_trend_daily(
     for agg in aggregations:
         if not agg["throughput"]:  # sum没有值时会返回None
             agg["throughput"] = 0
+        if not agg["count"]:
+            agg["count"] = 0
         days.append(agg["day"])
 
     aggregations_list = list(aggregations)
@@ -118,6 +122,7 @@ def calc_throughput_trend_daily(
         if start_date not in days:
             agg["day"] = start_date
             agg["throughput"] = 0
+            agg["count"] = 0
             aggregations_list.append(agg)
         start_date += relativedelta(days=1)
     return sorted(aggregations_list, key=lambda x: x["day"])
