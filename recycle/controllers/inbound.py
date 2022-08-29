@@ -7,7 +7,7 @@ from ninja.errors import HttpError
 
 from infra.authentication import AgentAuth, AuthToken, LjflToken
 from infra.schemas import Page
-from recycle.models import Company, Event, TransferStation, User, Vehicle
+from recycle.models import Company, Event, PlatformManager, TransferStation, User, Vehicle
 from recycle.models.event import EventType
 from recycle.models.inbound import InboundRecord
 from recycle.schemas.inbound import InboundRecordIn, InboundRecordPaginationOut
@@ -32,6 +32,13 @@ def list_inbound_records(
     # 公司用户只能查看本公司记录
     if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
         queryset = queryset.filter(carrier=company)
+    # 街道用户只能查看本街道记录
+    if isinstance(request.auth, User) and (
+        platform_manager := PlatformManager.objects.filter(user=request.auth).first()
+    ):
+        vehicles = Vehicle.objects.filter(service_street=platform_manager.region)
+        plate_numbers = vehicles.values_list("plate_number")
+        queryset = queryset.filter(plate_number__in=plate_numbers)
     if start_date:
         queryset = queryset.filter(net_weight_time__gte=start_date)
     if end_date:
