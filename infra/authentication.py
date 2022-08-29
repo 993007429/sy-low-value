@@ -1,5 +1,6 @@
 import logging
 import time
+from enum import Enum
 
 import jwt
 import requests
@@ -42,7 +43,11 @@ class LjflUser(BaseModel):
     精细化管理平台用户
     """
 
-    role: str
+    class RoleEnum(Enum):
+        AreaManager = "AreaManager"
+        StreetManager = "StreetManager"
+
+    role: RoleEnum
     relation_id: str
     username: str
     city_code: str = Field(None, alias="city_coding")

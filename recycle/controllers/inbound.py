@@ -5,7 +5,7 @@ from django.db.models import Sum
 from ninja import Query, Router
 from ninja.errors import HttpError
 
-from infra.authentication import AgentAuth, AuthToken, LjflToken
+from infra.authentication import AgentAuth, AuthToken, LjflToken, LjflUser
 from infra.schemas import Page
 from recycle.models import Company, Event, PlatformManager, TransferStation, User, Vehicle
 from recycle.models.event import EventType
@@ -38,6 +38,11 @@ def list_inbound_records(
     ):
         if platform_manager.role == PlatformManager.STREET:
             vehicles = Vehicle.objects.filter(service_street=platform_manager.region)
+            plate_numbers = vehicles.values_list("plate_number")
+            queryset = queryset.filter(plate_number__in=plate_numbers)
+    if isinstance(request.auth, LjflUser) and (ljfl_user := request.auth):
+        if ljfl_user.role == LjflUser.RoleEnum.StreetManager:
+            vehicles = Vehicle.objects.filter(service_street=ljfl_user.street_code)
             plate_numbers = vehicles.values_list("plate_number")
             queryset = queryset.filter(plate_number__in=plate_numbers)
     if start_date:
