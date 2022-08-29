@@ -36,9 +36,10 @@ def list_inbound_records(
     if isinstance(request.auth, User) and (
         platform_manager := PlatformManager.objects.filter(user=request.auth).first()
     ):
-        vehicles = Vehicle.objects.filter(service_street=platform_manager.region)
-        plate_numbers = vehicles.values_list("plate_number")
-        queryset = queryset.filter(plate_number__in=plate_numbers)
+        if platform_manager.role == PlatformManager.STREET:
+            vehicles = Vehicle.objects.filter(service_street=platform_manager.region)
+            plate_numbers = vehicles.values_list("plate_number")
+            queryset = queryset.filter(plate_number__in=plate_numbers)
     if start_date:
         queryset = queryset.filter(net_weight_time__gte=start_date)
     if end_date:
