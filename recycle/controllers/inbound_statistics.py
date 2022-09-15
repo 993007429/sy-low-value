@@ -7,8 +7,9 @@ from django.db.models import Count, F, Sum
 from django.db.models.functions import TruncMonth
 from ninja import Query, Router
 
+from infra.authentication import LjflUser
 from infra.schemas import Page, Pagination
-from recycle.models import InboundRecord, Vehicle
+from recycle.models import Company, InboundRecord, PlatformManager, User
 from recycle.schemas.inbound_statistics import (
     ThroughputByStationOut,
     ThroughputByStreetAndStationOut,
@@ -35,10 +36,8 @@ def calc_throughput(request, start_date: date, end_date: date, street_code: str 
     )
 
     if street_code:
-        # 按服务街道筛选车辆
-        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
-        queryset = queryset.filter(plate_number__in=plate_numbers)
-        queryset_previous = queryset_previous.filter(plate_number__in=plate_numbers)
+        queryset = queryset.filter(source_street__code=street_code)
+        queryset_previous = queryset_previous.filter(source_street__code=street_code)
 
     aggregations = queryset.aggregate(throughput=Sum("net_weight"))
     aggregations_previous = queryset_previous.aggregate(throughput=Sum("net_weight"))
@@ -95,9 +94,7 @@ def calc_throughput_trend_daily(
     start_date = end_date - timedelta(days=7)
     queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        # 按服务街道筛选车辆
-        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
-        queryset = queryset.filter(plate_number__in=plate_numbers)
+        queryset = queryset.filter(source_street__code=street_code)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     aggregations = (
@@ -137,10 +134,18 @@ def calc_throughput_count_trend_daily(
 
     end_date = end_date + timedelta(days=1)
     queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
-    if street_code:
-        # 按服务街道筛选车辆
-        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
-        queryset = queryset.filter(plate_number__in=plate_numbers)
+    # 公司用户只能查看本公司记录
+    if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
+        queryset = queryset.filter(carrier=company)
+    # 街道用户只能查看本街道记录
+    if isinstance(request.auth, User) and (
+        platform_manager := PlatformManager.objects.filter(user=request.auth).first()
+    ):
+        if platform_manager.role == PlatformManager.STREET:
+            queryset = queryset.filter(source_street__code=platform_manager.region.code)
+    if isinstance(request.auth, LjflUser) and (ljfl_user := request.auth):
+        if ljfl_user.role == LjflUser.RoleEnum.StreetManager:
+            queryset = queryset.filter(source_street__code=ljfl_user.street_code)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     aggregations = (
