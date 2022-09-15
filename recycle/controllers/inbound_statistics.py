@@ -8,7 +8,7 @@ from django.db.models.functions import TruncMonth
 from ninja import Query, Router
 
 from infra.schemas import Page, Pagination
-from recycle.models import InboundRecord, Vehicle
+from recycle.models import InboundRecord
 from recycle.schemas.inbound_statistics import (
     ThroughputByStationOut,
     ThroughputByStreetAndStationOut,
@@ -35,10 +35,8 @@ def calc_throughput(request, start_date: date, end_date: date, street_code: str 
     )
 
     if street_code:
-        # 按服务街道筛选车辆
-        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
-        queryset = queryset.filter(plate_number__in=plate_numbers)
-        queryset_previous = queryset_previous.filter(plate_number__in=plate_numbers)
+        queryset = queryset.filter(source_street__code=street_code)
+        queryset_previous = queryset_previous.filter(source_street__code=street_code)
 
     aggregations = queryset.aggregate(throughput=Sum("net_weight"))
     aggregations_previous = queryset_previous.aggregate(throughput=Sum("net_weight"))
@@ -95,9 +93,7 @@ def calc_throughput_trend_daily(
     start_date = end_date - timedelta(days=7)
     queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        # 按服务街道筛选车辆
-        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
-        queryset = queryset.filter(plate_number__in=plate_numbers)
+        queryset = queryset.filter(source_street__code=street_code)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     aggregations = (
@@ -138,9 +134,7 @@ def calc_throughput_count_trend_daily(
     end_date = end_date + timedelta(days=1)
     queryset = InboundRecord.standing_book.filter(net_weight_time__gte=start_date, net_weight_time__lt=end_date)
     if street_code:
-        # 按服务街道筛选车辆
-        plate_numbers = Vehicle.objects.filter(service_street__code=street_code).values("plate_number")
-        queryset = queryset.filter(plate_number__in=plate_numbers)
+        queryset = queryset.filter(source_street__code=street_code)
     if station_id:
         queryset = queryset.filter(station_id=station_id)
     aggregations = (
