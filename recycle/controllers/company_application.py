@@ -125,13 +125,13 @@ def update_company_application(request, id_: int, data: CompanyApplicationOperat
             except IntegrityError:
                 raise HttpError(409, MSG_COMPANY_DUPLICATED)
         application.save()
-    # 发送邮件通知审核结果
-    subject = "清运公司注册审核通知"
-    if application.state == ApprovalState.APPROVED:
-        message = f"{application.name} 审核通过。\n帐号：{user.username}\n密码：{password}"
-    else:
-        message = f"{application.name} 审核未通过，原因：{application.reason}"
-    email_from = formataddr((settings.EMAIL_SENDER_NAME, settings.EMAIL_HOST_USER))
-    recipient_list = [application.manager_email]
-    send_mail(subject, message, email_from, recipient_list, fail_silently=False)
+        # 发送邮件通知审核结果
+        subject = "清运公司注册审核通知"
+        if application.state == ApprovalState.APPROVED:
+            message = f"{application.name} 审核通过。\n帐号：{user.username}\n密码：{password}"
+        else:
+            message = f"{application.name} 审核未通过，原因：{application.reason}"
+        email_from = formataddr((settings.EMAIL_SENDER_NAME, settings.EMAIL_HOST_USER))
+        recipient_list = [application.manager_email]
+        send_mail(subject, message, email_from, recipient_list, fail_silently=False)
     return application
