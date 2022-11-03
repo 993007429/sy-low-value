@@ -37,14 +37,10 @@ def list_inbound_records(
         platform_manager := PlatformManager.objects.filter(user=request.auth).first()
     ):
         if platform_manager.role == PlatformManager.STREET:
-            vehicles = Vehicle.objects.filter(service_street=platform_manager.region)
-            plate_numbers = vehicles.values_list("plate_number")
-            queryset = queryset.filter(plate_number__in=plate_numbers)
+            queryset = queryset.filter(source_street__code=platform_manager.region.code)
     if isinstance(request.auth, LjflUser) and (ljfl_user := request.auth):
         if ljfl_user.role == LjflUser.RoleEnum.StreetManager:
-            vehicles = Vehicle.objects.filter(service_street=ljfl_user.street_code)
-            plate_numbers = vehicles.values_list("plate_number")
-            queryset = queryset.filter(plate_number__in=plate_numbers)
+            queryset = queryset.filter(source_street__code=ljfl_user.street_code)
     if start_date:
         queryset = queryset.filter(net_weight_time__gte=start_date)
     if end_date:
