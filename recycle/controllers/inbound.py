@@ -28,7 +28,7 @@ def list_inbound_records(
 ):
     """中转站进场记录"""
 
-    queryset = InboundRecord.standing_book.prefetch_related("station", "carrier", "source_street").order_by("-id")
+    queryset = InboundRecord.standing_book.prefetch_related("station", "carrier", "source_street")
     # 公司用户只能查看本公司记录
     if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
         queryset = queryset.filter(carrier=company)

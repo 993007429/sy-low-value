@@ -28,7 +28,7 @@ def list_outbound_records(
 ):
     """中转站出场记录"""
 
-    queryset = OutboundRecord.objects.order_by("-id")
+    queryset = OutboundRecord.objects.all()
     if start_date:
         queryset = queryset.filter(net_weight_time__gte=start_date)
     if end_date:
