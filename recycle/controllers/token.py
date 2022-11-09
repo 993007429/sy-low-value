@@ -32,7 +32,7 @@ def get_company_token(request, login: Login):
     user = authenticate(**login.dict())
     if not user:
         raise HttpError(404, MSG_PASSWORD_NOT_MATCH)
-    company_user = CompanyManager.objects.filter(user=user).first()
+    company_user = CompanyManager.objects.filter(user=user).prefetch_related("company", "company__stations").first()
     if not company_user:
         raise HttpError(404, MSG_PASSWORD_NOT_MATCH)
     token = get_tokens_for_user(user)
@@ -42,4 +42,5 @@ def get_company_token(request, login: Login):
         token=token,
         user_id=user.pk,
         social_credit_code=company_user.company.uniform_social_credit_code,
+        has_transfer_station=company_user.company.stations.exists(),
     )

@@ -45,6 +45,14 @@ class TransferStation(BaseModel):
         on_delete=models.SET_NULL,
     )
     management_company = models.CharField("管理单位", max_length=255)
+    managed_by = models.ForeignKey(
+        to="Company",
+        db_constraint=False,
+        related_name="stations",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     address = models.CharField("地址", max_length=255)
     longitude = models.DecimalField("经度", max_digits=20, decimal_places=11)
     latitude = models.DecimalField("维度", max_digits=20, decimal_places=11)

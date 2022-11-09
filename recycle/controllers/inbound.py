@@ -29,9 +29,13 @@ def list_inbound_records(
     """中转站进场记录"""
 
     queryset = InboundRecord.standing_book.prefetch_related("station", "carrier", "source_street")
-    # 公司用户只能查看本公司记录
-    if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
-        queryset = queryset.filter(carrier=company)
+    if isinstance(request.auth, User) and (
+        company := Company.objects.filter(manager__user=request.auth).prefetch_related("stations").first()
+    ):
+        if company.stations.all():  # 有中转站的公司查看中转站所有数据
+            queryset = queryset.filter(station__in=company.stations.all())
+        else:  # 没中转站的公司查看本公司的数据
+            queryset = queryset.filter(carrier=company)
     # 街道用户只能查看本街道记录
     if isinstance(request.auth, User) and (
         platform_manager := PlatformManager.objects.filter(user=request.auth).first()

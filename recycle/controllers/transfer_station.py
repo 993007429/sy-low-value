@@ -9,7 +9,7 @@ from openpyxl import load_workbook
 from openpyxl.cell import Cell
 
 from infra.schemas import Pagination
-from recycle.models import Region, TransferStation
+from recycle.models import Company, Region, TransferStation, User
 from recycle.models.region import RegionGrade
 from recycle.models.transfer_station import RubbishVariety, StationNature
 from recycle.schemas.transfer_station import TransferStationImportOut, TransferStationOut
@@ -30,6 +30,9 @@ def list_stations(
     """可回收物中转站台账列表"""
 
     stations = TransferStation.objects.order_by("-id")
+    # 公司用户只能查看本公司数据
+    if isinstance(request.auth, User) and (company := Company.objects.filter(manager__user=request.auth).first()):
+        stations = stations.filter(managed_by=company)
     if name:
         stations = stations.filter(name__contains=name)
     if street_code:

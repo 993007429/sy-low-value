@@ -8,7 +8,7 @@ from ninja.errors import HttpError
 
 from infra.authentication import AgentAuth
 from infra.schemas import Page
-from recycle.models import TransferStation
+from recycle.models import Company, TransferStation, User
 from recycle.models.outbound import OutboundRecord
 from recycle.schemas.outbound import OutboundRecordIn, OutboundRecordPaginationOut
 
@@ -29,6 +29,11 @@ def list_outbound_records(
     """中转站出场记录"""
 
     queryset = OutboundRecord.objects.all()
+    if isinstance(request.auth, User) and (
+        company := Company.objects.filter(manager__user=request.auth).prefetch_related("stations").first()
+    ):
+        if company.stations.all():  # 有中转站的公司查看中转站所有数据
+            queryset = queryset.filter(station__in=company.stations.all())
     if start_date:
         queryset = queryset.filter(net_weight_time__gte=start_date)
     if end_date:
