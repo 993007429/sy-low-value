@@ -4,6 +4,7 @@ from .driver import Driver  # noqa
 from .event import Event  # noqa
 from .inbound import InboundRecord  # noqa
 from .monitor import *  # noqa
+from .notification import ServiceStreetModification  # noqa
 from .outbound import OutboundRecord  # noqa
 from .region import Region  # noqa
 from .region_scope import RegionScope  # noqa

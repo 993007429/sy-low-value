@@ -8,7 +8,7 @@ from ninja.errors import HttpError
 
 from infra.decorators import permission_required
 from infra.schemas import Pagination
-from recycle.models import Company, PlatformManager, Region, Vehicle, VehicleHistory
+from recycle.models import Company, PlatformManager, Region, ServiceStreetModification, Vehicle, VehicleHistory
 from recycle.models.region import RegionGrade
 from recycle.models.vehicle_application import ApprovalState, VehicleApplication
 from recycle.models.vehicle_history import VehicleChangeType
@@ -113,7 +113,14 @@ def process_vehicle_application(request, id_: int, data: VehicleApplicationOpera
                     )
                 elif application.change_type == VehicleChangeType.CHANGE:
                     vehicle = Vehicle.objects.get(plate_number=application.plate_number)
-                    vehicle.service_street = application.service_street
+                    if application.service_street != vehicle.service_street:
+                        # 街道变更通知
+                        ServiceStreetModification.objects.create(
+                            plate_number=vehicle.plate_number,
+                            source_street=vehicle.service_street,
+                            target_street=application.service_street,
+                        )
+                        vehicle.service_street = application.service_street
                     vehicle.type = application.type
                     vehicle.energy_type = application.energy_type
                     vehicle.load = application.load

@@ -16,6 +16,7 @@ from .controllers.event import router as event_router
 from .controllers.inbound import router as inbound_router
 from .controllers.inbound_statistics import router as inbound_statistics_router
 from .controllers.monitor import router as monitor_router
+from .controllers.notification import router as notification_router
 from .controllers.outbound import router as outbound_router
 from .controllers.region import router as region_router
 from .controllers.statistics import router as statistics_router
@@ -61,6 +62,7 @@ api.add_router("/statistics", statistics_router)
 api.add_router("/track", track_router)
 api.add_router("/monitor", monitor_router)
 api.add_router("/event", event_router)
+api.add_router("/notification", notification_router)
 
 urlpatterns = [
     path("", api.urls),
