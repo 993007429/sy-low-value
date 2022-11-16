@@ -33,9 +33,6 @@ class OutboundRecord(BaseModel):
 
     place_to_go = models.CharField("去向", max_length=128, null=True, blank=True)
 
-    class Meta:
-        ordering = ["-net_weight_time"]
-
     @property
     def station_name(self):
         return self.station.name

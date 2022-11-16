@@ -28,7 +28,7 @@ def list_outbound_records(
 ):
     """中转站出场记录"""
 
-    queryset = OutboundRecord.objects.all()
+    queryset = OutboundRecord.objects.all().order_by("-net_weight_time")
     if isinstance(request.auth, User) and (
         company := Company.objects.filter(manager__user=request.auth).prefetch_related("stations").first()
     ):

@@ -33,12 +33,14 @@ def list_inbound_records(
         company := Company.objects.filter(manager__user=request.auth).prefetch_related("stations").first()
     ):
         if company.stations.all():  # 有中转站的公司查看中转站所有数据
-            queryset = InboundRecord.objects.filter(station__in=company.stations.all())
+            queryset = InboundRecord.objects.filter(station__in=company.stations.all()).order_by("-net_weight_time")
         else:  # 没中转站的公司查看本公司的数据
-            queryset = InboundRecord.standing_book.filter(carrier=company)
+            queryset = InboundRecord.standing_book.filter(carrier=company).order_by("-net_weight_time")
     else:
         # 平台端和垃圾分类精细化管理平台查看所有台帐车辆数据
-        queryset = InboundRecord.standing_book.prefetch_related("station", "carrier", "source_street")
+        queryset = InboundRecord.standing_book.order_by("-net_weight_time").prefetch_related(
+            "station", "carrier", "source_street"
+        )
 
     # 街道用户只能查看本街道记录
     if isinstance(request.auth, User) and (

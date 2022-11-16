@@ -41,9 +41,6 @@ class InboundRecord(BaseModel):
     objects = models.Manager()  # The default manager.
     standing_book = StandingBookManager()
 
-    class Meta:
-        ordering = ["-net_weight_time"]
-
     @property
     def station_name(self):
         return self.station.name
