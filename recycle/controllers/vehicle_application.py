@@ -127,6 +127,9 @@ def process_vehicle_application(request, id_: int, data: VehicleApplicationOpera
                     vehicle.meet_spec = application.meet_spec
                     vehicle.vehicle_licence = application.vehicle_licence
                     vehicle.save()
+                elif application.change_type == VehicleChangeType.DELETE:
+                    vehicle = Vehicle.objects.get(plate_number=application.plate_number)
+                    vehicle.delete()
                 else:
                     pass
                 # 生成历史记录

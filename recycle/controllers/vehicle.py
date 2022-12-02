@@ -86,3 +86,27 @@ def update_vehicle(request, id_: int, data: VehicleIn):
     except Vehicle.DoesNotExist:
         raise HttpError(404, "车辆不存在")
     return application
+
+
+@router.delete("/{id_}/submit", response=VehicleApplicationOut)
+@permission_required([IsCompanyManager])
+def delete_vehicle(request, id_: int):
+    """删除车辆，提交审批"""
+
+    try:
+        company = Company.objects.get(manager__user=request.auth)
+        vehicle = Vehicle.objects.get(company=company, pk=id_)
+        application = VehicleApplication.objects.create(
+            company=company,
+            plate_number=vehicle.plate_number,
+            service_street=vehicle.service_street,
+            type=vehicle.type,
+            energy_type=vehicle.energy_type,
+            load=vehicle.load,
+            meet_spec=vehicle.meet_spec,
+            vehicle_licence=vehicle.vehicle_licence,
+            change_type=VehicleChangeType.DELETE,
+        )
+    except Vehicle.DoesNotExist:
+        raise HttpError(404, "车辆不存在")
+    return application

@@ -8,6 +8,7 @@ class VehicleChangeType(models.TextChoices):
 
     NEW = "NEW", "新增"
     CHANGE = "CHANGE", "变更"
+    DELETE = "DELETE", "删除"
 
 
 class VehicleHistory(BaseVehicle):
