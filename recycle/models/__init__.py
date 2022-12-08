@@ -2,6 +2,7 @@ from .company import Company  # noqa
 from .company_application import CompanyApplication  # noqa
 from .driver import Driver  # noqa
 from .event import Event  # noqa
+from .high_value_report import HighValueReport  # noqa
 from .inbound import InboundRecord  # noqa
 from .monitor import *  # noqa
 from .notification import ServiceStreetModification  # noqa
