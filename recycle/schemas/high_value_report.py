@@ -21,3 +21,9 @@ class HighValueReportOut(ModelSchema):
     class Config:
         model = HighValueReport
         model_fields = "__all__"
+
+
+class ThroughputByStreetOut(Schema):
+    street_code: str = Field(..., title="街道编码")
+    street_name: str = Field(..., title="街道名称")
+    throughput: float = Field(..., title="垃圾重量")

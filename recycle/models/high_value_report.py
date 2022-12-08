@@ -13,5 +13,13 @@ class HighValueReport(BaseModel):
     reporter = models.CharField("填报人", max_length=64)
     approver = models.CharField("审核人", max_length=64)
 
+    @property
+    def street_code(self):
+        return self.street.code
+
+    @property
+    def street_name(self):
+        return self.street.name
+
     class Meta:
         unique_together = ("street", "report_date")

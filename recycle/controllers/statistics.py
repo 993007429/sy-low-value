@@ -1,12 +1,13 @@
+from datetime import date, timedelta
 from typing import List
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, F
+from django.db.models import Count, F, Sum
 from ninja import Query, Router
 from ninja.errors import HttpError
 
-from recycle.models import Company, Region, TransferStation, Vehicle
-from recycle.schemas.statistics import CountByStreetOut, GeneralInformationOut
+from recycle.models import Company, HighValueReport, InboundRecord, Region, TransferStation, Vehicle
+from recycle.schemas.statistics import CountByStreetOut, GeneralInformationOut, HighLowValueThroughputByDay
 
 router = Router(tags=["基本信息"])
 
@@ -46,3 +47,41 @@ def calc_count_by_street(request):
     )
 
     return count_by_street
+
+
+@router.get("/high-low-value-throughput-by-day", response=List[HighLowValueThroughputByDay])
+def get_high_low_value_throughput_by_day(request, start_date: date, end_date: date):
+    """按天统计高低值总量"""
+
+    low_values = InboundRecord.standing_book.all()
+    high_values = HighValueReport.objects.all().select_related("street")
+
+    if start_date:
+        low_values = low_values.filter(net_weight_time__date__gte=start_date)
+        high_values = high_values.filter(report_date__gte=start_date)
+    if end_date:
+        low_values = low_values.filter(net_weight_time__date__lte=end_date)
+        high_values = high_values.filter(report_date__lte=end_date)
+    low_value_aggregations = (
+        low_values.annotate(date=F("net_weight_time__date")).values("date").annotate(throughput=Sum("net_weight"))
+    )
+    high_value_aggregations = (
+        high_values.annotate(date=F("report_date")).values("date").annotate(throughput=Sum("high_value_weight"))
+    )
+
+    results = []
+    day = start_date
+    while day <= end_date:
+        high_value = 0
+        low_value = 0
+        for agg in high_value_aggregations:
+            if agg["date"] == day:
+                high_value = agg["throughput"] or 0
+                break
+        for agg in low_value_aggregations:
+            if agg["date"] == day:
+                high_value = agg["throughput"] or 0
+                break
+        results.append(HighLowValueThroughputByDay(day=day, high_value=high_value, low_value=low_value))
+        day = day + timedelta(days=1)
+    return results
