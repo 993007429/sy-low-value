@@ -12,7 +12,6 @@ class BasePermission:
 
 def check_permissions(request: HttpRequest, permissions: List[BasePermission], view_func):
     for permission in permissions:
-        if not permission.has_permission(request, view_func):
-            code = getattr(permission, "code", 403)
-            message = getattr(permission, "message", _("You do not have permission to perform this action."))
-            raise HttpError(code, message)
+        if permission.has_permission(request, view_func):
+            return
+    raise HttpError(403, _("You do not have permission to perform this action."))

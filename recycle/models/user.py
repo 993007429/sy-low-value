@@ -40,3 +40,11 @@ class PlatformManager(BaseModel):
         db_column="region_code",
         default=settings.REGION_CODE,
     )
+
+
+class HazardousWasteCompany(BaseModel):
+    """有害垃圾清运公司"""
+
+    user = models.OneToOneField("User", on_delete=models.CASCADE)
+    name = models.CharField(max_length=32, unique=True)
+    password = models.CharField("密码", max_length=128)

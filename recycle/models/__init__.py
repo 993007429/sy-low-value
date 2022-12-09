@@ -2,6 +2,7 @@ from .company import Company  # noqa
 from .company_application import CompanyApplication  # noqa
 from .driver import Driver  # noqa
 from .event import Event  # noqa
+from .hazardous_waste_report import HazardousWasteReport  # noqa
 from .high_value_report import HighValueReport  # noqa
 from .inbound import InboundRecord  # noqa
 from .monitor import *  # noqa
@@ -10,6 +11,7 @@ from .outbound import OutboundRecord  # noqa
 from .region import Region  # noqa
 from .region_scope import RegionScope  # noqa
 from .transfer_station import TransferStation  # noqa
+from .user import HazardousWasteCompany  # noqa
 from .user import CompanyManager, PlatformManager, User  # noqa
 from .vehicle import Vehicle  # noqa
 from .vehicle_application import VehicleApplication  # noqa

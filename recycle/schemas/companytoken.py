@@ -22,3 +22,10 @@ class PlatformToken(Schema):
     token: str
     user_id: int
     role: str
+
+
+class HazardousWasteCompanyToken(Schema):
+    username: str
+    name: str
+    token: str
+    user_id: int

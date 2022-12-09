@@ -13,6 +13,8 @@ from .controllers.company import router as company_router
 from .controllers.company_application import router as company_application_router
 from .controllers.driver import router as driver_router
 from .controllers.event import router as event_router
+from .controllers.hazardous_waste_company import router as hazardous_waste_company_router
+from .controllers.hazardous_waste_report import router as hazardous_waste_report_router
 from .controllers.high_value_report import router as high_value_report_router
 from .controllers.inbound import router as inbound_router
 from .controllers.inbound_statistics import router as inbound_statistics_router
@@ -65,6 +67,8 @@ api.add_router("/monitor", monitor_router)
 api.add_router("/event", event_router)
 api.add_router("/notification", notification_router)
 api.add_router("/high-value-report", high_value_report_router)
+api.add_router("/hazardous-waste-report", hazardous_waste_report_router)
+api.add_router("/hazardous-waste-company", hazardous_waste_company_router)
 
 urlpatterns = [
     path("", api.urls),

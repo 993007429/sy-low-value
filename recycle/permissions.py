@@ -2,6 +2,7 @@ from django.http import HttpRequest
 
 from infra.permissions import BasePermission
 from recycle.models import CompanyManager, PlatformManager
+from recycle.models.user import HazardousWasteCompany
 
 
 class IsPlatformManager(BasePermission):
@@ -30,3 +31,10 @@ class IsAreaManager(BasePermission):
 
     def has_permission(self, request: HttpRequest, view_func):
         return PlatformManager.objects.filter(user=request.auth, role=PlatformManager.AREA).exists()
+
+
+class IsHazardousWasterManager(BasePermission):
+    """有害垃圾清运公司管理员"""
+
+    def has_permission(self, request: HttpRequest, view_func):
+        return HazardousWasteCompany.objects.filter(user=request.auth).exists()
