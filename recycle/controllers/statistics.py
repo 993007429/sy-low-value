@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import date, timedelta
 from typing import List
 
@@ -7,7 +8,12 @@ from ninja import Query, Router
 from ninja.errors import HttpError
 
 from recycle.models import Company, HighValueReport, InboundRecord, Region, TransferStation, Vehicle
-from recycle.schemas.statistics import CountByStreetOut, GeneralInformationOut, HighLowValueThroughputByDay
+from recycle.schemas.statistics import (
+    CountByStreetOut,
+    GeneralInformationOut,
+    HighLowValueThroughputByDay,
+    HighLowValueThroughputByStreet,
+)
 
 router = Router(tags=["基本信息"])
 
@@ -54,7 +60,7 @@ def get_high_low_value_throughput_by_day(request, start_date: date, end_date: da
     """按天统计高低值总量"""
 
     low_values = InboundRecord.standing_book.all()
-    high_values = HighValueReport.objects.all().select_related("street")
+    high_values = HighValueReport.objects.all()
 
     if start_date:
         low_values = low_values.filter(net_weight_time__date__gte=start_date)
@@ -85,3 +91,38 @@ def get_high_low_value_throughput_by_day(request, start_date: date, end_date: da
         results.append(HighLowValueThroughputByDay(day=day, high_value=high_value, low_value=low_value))
         day = day + timedelta(days=1)
     return results
+
+
+@router.get("/high-low-value-throughput-by-street", response=List[HighLowValueThroughputByStreet])
+# @permission_required([IsAreaManager])
+def get_high_low_value_throughput_by_street(request, start_date: date = None, end_date: date = None):
+    """街道统计高低值总量"""
+
+    low_values = InboundRecord.standing_book.all()
+    high_values = HighValueReport.objects.all()
+
+    if start_date:
+        low_values = low_values.filter(net_weight_time__date__gte=start_date)
+        high_values = high_values.filter(report_date__gte=start_date)
+    if end_date:
+        low_values = low_values.filter(net_weight_time__date__lte=end_date)
+        high_values = high_values.filter(report_date__lte=end_date)
+    low_value_aggregations = (
+        low_values.annotate(street_code=F("source_street__code"), street_name=F("source_street__name"))
+        .values("street_code", "street_name")
+        .annotate(throughput=Sum("net_weight"))
+    )
+    high_value_aggregations = (
+        high_values.annotate(street_code=F("street__code"), street_name=F("street__name"))
+        .values("street_code", "street_name")
+        .annotate(throughput=Sum("high_value_weight"))
+    )
+
+    streets = OrderedDict()
+    for agg in list(low_value_aggregations) + list(high_value_aggregations):
+        code, name, throughput = agg["street_code"], agg["street_name"], agg["throughput"]
+        streets.setdefault(
+            code, HighLowValueThroughputByStreet(street_code=code, street_name=name, throughput=throughput)
+        ).throughput += throughput
+
+    return list(streets.values())

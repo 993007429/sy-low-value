@@ -19,5 +19,11 @@ class CountByStreetOut(Schema):
 
 class HighLowValueThroughputByDay(Schema):
     day: date
-    high_value: float = Field(..., title="高值总重量（单位吨）")
-    low_value: float = Field(..., title="低值总重量（单位吨）")
+    high_value: float = Field(..., title="高值总重量（单位kg）")
+    low_value: float = Field(..., title="低值总重量（单位kg）")
+
+
+class HighLowValueThroughputByStreet(Schema):
+    street_code: str = Field(..., title="街道编码")
+    street_name: str = Field(..., title="街道名称")
+    throughput: float = Field(0, title="高低值垃圾总重量")

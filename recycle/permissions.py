@@ -23,3 +23,10 @@ class IsStreetManager(BasePermission):
 
     def has_permission(self, request: HttpRequest, view_func):
         return PlatformManager.objects.filter(user=request.auth, role=PlatformManager.STREET).exists()
+
+
+class IsAreaManager(BasePermission):
+    """再生资源平台区级用户"""
+
+    def has_permission(self, request: HttpRequest, view_func):
+        return PlatformManager.objects.filter(user=request.auth, role=PlatformManager.AREA).exists()

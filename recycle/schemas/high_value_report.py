@@ -9,8 +9,8 @@ from recycle.schemas.region import RegionOut
 
 class HighValueReportIn(Schema):
     report_date: date = Field(..., title="填报日期")
-    high_value_weight: float = Field(..., title="高值重量（单位吨）")
-    low_value_weight: float = Field(..., title="低值重量（单位吨）")
+    high_value_weight: float = Field(..., title="高值重量（单位kg）")
+    low_value_weight: float = Field(..., title="低值重量（单位kg）")
     reporter: str = Field(..., title="填报人", max_length=64)
     approver: str = Field(..., title="审核人", max_length=64)
 
