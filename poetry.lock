@@ -462,14 +462,14 @@ six = ">=1.5"
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
-category = "main"
+category = "main"                                                                
 optional = false
 python-versions = ">=3.6"
 
 [[package]]
 name = "requests"
 version = "2.28.1"
-description = "Python HTTP for Humans."
+description = "                              Python HTTP for Humans."
 category = "main"
 optional = false
 python-versions = ">=3.7, <4"
